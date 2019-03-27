@@ -10,7 +10,9 @@ defmodule ExAliyunSls.MixProject do
       deps: deps(),
       docs: [extras: ["README.md"]],
       description: "Aliyun Log Service log producer for Elixir",
-      source_url: "https://github.com/edragonconnect/ex_aliyun_sls"
+      source_url: "https://github.com/edragonconnect/ex_aliyun_sls",
+      licenses: ["MIT"],
+      links: %{"Github" => "https://github.com/edragonconnect/ex_aliyun_sls"}
     ]
   end
 
