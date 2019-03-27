@@ -1,7 +1,20 @@
 # ExAliyunSls
 
 ## Description
-Push your logs to aliyun sls(日志服务), let your logs be more convenient for statistics.
+Push your logs to aliyun sls(阿里云日志服务), let your logs be more convenient for statistics.
+
+## Installation
+
+If [available in Hex](https://hex.pm/docs/publish), the package can be installed
+by adding `ex_aliyun_sls` to your list of dependencies in `mix.exs`:
+
+```elixir
+def deps do
+  [
+    {:ex_aliyun_sls, "~> 0.1"}
+  ]
+end
+```
 
 ## You should log in this way
 In elixir, you can log as below.
@@ -76,13 +89,11 @@ Your logs for plug will turn to "GET: /login, Sent 200 in 0.443ms", and it will 
 ### Filter params
 If you have some params that should not be logged into logs, you can filter them by setting `filtered_params` in the config file.
 ```elixir
-config :ex_aliyun_sls,
-  profile: %{
-    endpoint: "YOUR SLS ENDPOINT",
-    access_key_id: "YOUR ACCESS KEY ID",
-    access_key: "YOUR ACCESS KEY",
-    project: "YOUR SLS PROJECT NAME"
-  },
+config :ex_aliyun_sls, :backend,
+  endpoint: "YOUR SLS ENDPOINT",
+  access_key_id: "YOUR ACCESS KEY ID",
+  access_key: "YOUR ACCESS KEY",
+  project: "YOUR SLS PROJECT NAME",
   logstore: "YOUR LOG STORE NAME",
   package_count: 100,
   package_timeout: 10_000,
@@ -100,6 +111,14 @@ You should create a role in Aliyun Console to make an `sts` role.
     access_key_secret: "YOUR SLS ACCESS KEY SECRET"
 ```
 Attention, the `access_key_id` and `access_key_secret` are not same as your sls account. It is an `Aliyun STS` account. It is used to assume to another Aliyun Role.
+```elixir
+config :ex_aliyun_sls, :embed_page,
+  access_key_id: "YOUR SLS ACCESS KEY ID",
+  access_key_secret: "YOUR SLS ACCESS KEY SECRET",
+  role_arn: "YOUR ROLE ARN",
+  login_page: "YOUR LOGIN PAGE URL",
+  destination: "YOUR DESTINATION URL"
+```
 
 ## How to use it
 You can use ExAliyunSls.EmbedPage.get_url/5 to get the embedded page's url.
@@ -120,22 +139,7 @@ get_url(access_key_id, access_key_secret, role_arn, login_page, destination_page
 
 `Dashboard page`: `https://sls.console.aliyun.com/next/project/<Project名称>/dashboard/<仪表盘名称>?isShare=true&hideTopbar=true&hideSidebar=true`
 
-
-** TODO: Add other aliyun sls apis support**
-
-## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `ex_aliyun_sls` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    #{:ex_aliyun_sls, "~> 0.1.0"}
-    {:ex_aliyun_sls, git: "git@gitlab.edragonhost.com:edc/ex_aliyun_sls.git"}
-  ]
-end
-```
+------
 
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can

@@ -7,12 +7,13 @@ defmodule ExAliyunSls.LoggerBackend do
   @type metadata :: [atom]
 
   alias ExAliyunSls.Log.LogRaw
+  alias ExAliyunSls.Log.LogTagRaw
   alias ExAliyunSls.LoggerBackend.Client
 
   def init({__MODULE__, name}) do
     Process.flag(:trap_exit, true)
 
-    Agent.start_link(fn -> {[], 0} end, name: __MODULE__)
+    Agent.start_link(fn -> {[], 0, 0} end, name: __MODULE__)
     {:ok, configure(name, [])}
   end
 
@@ -232,30 +233,36 @@ defmodule ExAliyunSls.LoggerBackend do
   def add_item_to_package(item) do
     Agent.update(
       __MODULE__,
-      fn {list, count} -> {[item | list], count + 1} end
+      fn {list, count, pack} -> {[item | list], count + 1, pack} end
     )
   end
 
   def push_to_sls(state) do
     Agent.update(
       __MODULE__,
-      fn {list, _} ->
+      fn {list, _, pack} ->
         Task.start(fn ->
           source = state.source
 
           Client.post_log_store_logs(%{
-            logitems: list,
+            logitems: list |> Enum.reverse(),
             source: source,
             logstore: state.logstore,
             profile: state.profile,
-            logtags: [],
+            logtags: [LogTagRaw.new(Key: "__pack_id__", Value: get_pack_id(source, pack))],
             topic: ""
           })
         end)
 
-        {[], 0}
+        {[], 0, pack + 1}
       end
     )
+  end
+
+  def get_pack_id(source, pack) do
+    context_hash = :crypto.hash(:md5, source) |> Base.encode16() |> String.slice(0..15)
+    pack = pack |> to_string
+    context_hash <> "-" <> pack
   end
 
   def clear_current_package(%{package_timeout: package_timeout} = state) do
@@ -268,28 +275,28 @@ defmodule ExAliyunSls.LoggerBackend do
   end
 
   def push_when_exit(state) do
-    {list, _} = Agent.get(__MODULE__, fn package -> package end)
+    {list, _, pack} = Agent.get(__MODULE__, fn package -> package end)
     source = state.source
 
     Client.post_log_store_logs(%{
-      logitems: list,
+      logitems: list |> Enum.reverse(),
       source: source,
       logstore: state.logstore,
       profile: state.profile,
-      logtags: [],
+      logtags: [LogTagRaw.new(Key: "__pack_id__", Value: get_pack_id(source, pack))],
       topic: ""
     })
   end
 
   def get_package do
-    Agent.get(__MODULE__, fn {package, _} -> package end)
+    Agent.get(__MODULE__, fn {package, _, _} -> package end)
   end
 
   def get_count do
-    Agent.get(__MODULE__, fn {_, count} -> count end)
+    Agent.get(__MODULE__, fn {_, count, _} -> count end)
   end
 
   def empty_package do
-    Agent.update(__MODULE__, fn _ -> {[], 0} end)
+    Agent.update(__MODULE__, fn _ -> {[], 0, 0} end)
   end
 end
