@@ -11,8 +11,7 @@ defmodule ExAliyunSls.MixProject do
       docs: [extras: ["README.md"]],
       description: "Aliyun Log Service log producer for Elixir",
       source_url: "https://github.com/edragonconnect/ex_aliyun_sls",
-      licenses: ["MIT"],
-      links: %{"Github" => "https://github.com/edragonconnect/ex_aliyun_sls"}
+      package: package()
     ]
   end
 
@@ -20,6 +19,13 @@ defmodule ExAliyunSls.MixProject do
   def application do
     [
       extra_applications: [:logger, :exprotobuf]
+    ]
+  end
+
+  def package do
+    [
+      licenses: ["MIT"],
+      links: %{"Github" => "https://github.com/edragonconnect/ex_aliyun_sls"}
     ]
   end
 
