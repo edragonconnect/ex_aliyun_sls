@@ -101,10 +101,10 @@ config :ex_aliyun_sls, :backend,
 ```
 Then your params of http request will filter the `filtered_params`, they will be replaced by `******`.
 
-# Use Embedded Page of Aliyun Sls
+## Use Embedded Page of Aliyun Sls
 To check and search logs in aliyun sls dashboard, we can add an embedded page to our own website.
 
-## Configuration
+### Configuration
 You should create a role in Aliyun Console to make an `sts` role.
 ```elixir
     access_key_id: "YOUR SLS ACCESS KEY ID",
@@ -120,7 +120,7 @@ config :ex_aliyun_sls, :embed_page,
   destination: "YOUR DESTINATION URL"
 ```
 
-## How to use it
+### How to use it
 You can use ExAliyunSls.EmbedPage.get_url/5 to get the embedded page's url.
 ```elixir
 get_url(access_key_id, access_key_secret, role_arn, login_page, destination_page, duration_seconds \\ 3600, role_session_name \\ "default")

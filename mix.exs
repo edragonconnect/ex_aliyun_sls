@@ -4,10 +4,13 @@ defmodule ExAliyunSls.MixProject do
   def project do
     [
       app: :ex_aliyun_sls,
-      version: "0.1.1",
+      version: "0.1.0",
       elixir: "~> 1.6",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      docs: [extras: ["README.md"]],
+      description: "Aliyun Log Service log producer for Elixir",
+      source_url: "https://github.com/edragonconnect/ex_aliyun_sls"
     ]
   end
 
@@ -15,13 +18,13 @@ defmodule ExAliyunSls.MixProject do
   def application do
     [
       extra_applications: [:logger, :exprotobuf]
-      # mod: {ExAliyunSls.Application, []}
     ]
   end
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:ex_doc, "~> 0.19", only: :dev, runtime: false},
       {:exprotobuf, "~> 1.2"},
       {:tesla, "~> 1.2", optional: true},
       {:jason, "~> 1.1"},

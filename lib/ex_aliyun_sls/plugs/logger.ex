@@ -56,7 +56,7 @@ defmodule ExAliyunSls.Plug.Logger do
   defp get_params(%{params: params}) do
     params
     |> do_filter_params(Application.get_env(:ex_aliyun_sls, :backend)[:filtered_params])
-    |> ExAliyunSls.Utils.iterate_struct_to_map()
+    |> iterate_struct_to_map()
     |> Jason.encode!()
   end
 
@@ -79,4 +79,58 @@ defmodule ExAliyunSls.Plug.Logger do
     do: Enum.map(list, &do_filter_params(&1, params_to_filter))
 
   defp do_filter_params(other, _params_to_filter), do: other
+
+  defp iterate_struct_to_map(%_{} = data) do
+    data
+    |> Map.keys()
+    |> Enum.filter(fn key -> key != :__struct__ end)
+    |> Enum.reduce(%{}, fn key, acc ->
+      value = Map.get(data, key)
+
+      updated_value =
+        case is_map(value) do
+          true ->
+            iterate_struct_to_map(value)
+
+          false ->
+            value
+        end
+
+      Map.put(acc, key, updated_value)
+    end)
+  end
+
+  defp iterate_struct_to_map(data) when is_map(data) do
+    Enum.reduce(data, %{}, fn {key, value}, acc ->
+      cond do
+        Keyword.keyword?(value) ->
+          updated_value =
+            Enum.reduce(value, Keyword.new(), fn {inner_key, inner_value}, acc ->
+              updated_inner_value = iterate_struct_to_map(inner_value)
+              Keyword.put(acc, inner_key, updated_inner_value)
+            end)
+
+          Map.put(acc, key, updated_value)
+
+        is_list(value) ->
+          updated_value =
+            Enum.reduce(value, [], fn item, acc ->
+              Enum.concat(acc, [iterate_struct_to_map(item)])
+            end)
+
+          Map.put(acc, key, updated_value)
+
+        is_map(value) ->
+          updated_value = iterate_struct_to_map(value)
+          Map.put(acc, key, updated_value)
+
+        true ->
+          Map.put(acc, key, value)
+      end
+    end)
+  end
+
+  defp iterate_struct_to_map(data) do
+    data
+  end
 end
