@@ -1,5 +1,7 @@
 defmodule ExAliyunSls.Plug.Logger do
-  @moduledoc false
+  @moduledoc """
+  A logger plug, you can use it instead of Plug.Logger in your Endpoint.
+  """
 
   require Logger
   alias Plug.Conn

@@ -1,5 +1,7 @@
 defmodule ExAliyunSls.LoggerBackend.Client do
-  @moduledoc false
+  @moduledoc """
+  Aliyun LogService client to put logs.
+  """
 
   alias ExAliyunSls.LoggerBackend.Http
   alias ExAliyunSls.Log.LogGroupRaw, as: LogGroup

@@ -4,7 +4,7 @@ defmodule ExAliyunSls.MixProject do
   def project do
     [
       app: :ex_aliyun_sls,
-      version: "0.1.0",
+      version: "0.1.1",
       elixir: "~> 1.6",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -32,7 +32,7 @@ defmodule ExAliyunSls.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ex_doc, "~> 0.19", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.20", only: :dev, runtime: false},
       {:exprotobuf, "~> 1.2"},
       {:tesla, "~> 1.2", optional: true},
       {:jason, "~> 1.1"},

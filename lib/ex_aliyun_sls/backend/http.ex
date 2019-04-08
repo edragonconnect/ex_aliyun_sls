@@ -1,5 +1,7 @@
 defmodule ExAliyunSls.LoggerBackend.PutLogsMiddleware do
-  @moduledoc false
+  @moduledoc """
+  Tesla Middleware for PugLogs API.
+  """
 
   @behaviour Tesla.Middleware
 
@@ -36,7 +38,9 @@ defmodule ExAliyunSls.LoggerBackend.PutLogsMiddleware do
 end
 
 defmodule ExAliyunSls.LoggerBackend.Http do
-  @moduledoc false
+  @moduledoc """
+  Tesla client for sls logger backend.
+  """
 
   use Tesla
   adapter(Tesla.Adapter.Hackney)

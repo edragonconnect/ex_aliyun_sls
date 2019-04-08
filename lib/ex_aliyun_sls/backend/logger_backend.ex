@@ -1,5 +1,7 @@
 defmodule ExAliyunSls.LoggerBackend do
-  @moduledoc false
+  @moduledoc """
+  The logger backend to send your logs to Aliyun Log Service by package.
+  """
 
   @behaviour :gen_event
 

@@ -1,5 +1,7 @@
 defmodule ExAliyunSls.EmbedPage.Utils do
-  @moduledoc false
+  @moduledoc """
+  Utils for generating embeded page.
+  """
 
   def get_timestamp do
     now = Timex.now()
@@ -10,7 +12,7 @@ defmodule ExAliyunSls.EmbedPage.Utils do
 
   def get_query(common_params, params, access_key_secret) do
     sign_params = common_params |> Map.merge(params)
-    string_to_sign = format_string_to_sign(sign_params) |> String.replace("%2B", "%2520")
+    string_to_sign = sign_params |> format_string_to_sign() |> String.replace("%2B", "%2520")
     signature = sign(access_key_secret, string_to_sign)
 
     sign_params

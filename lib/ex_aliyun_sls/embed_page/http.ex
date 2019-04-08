@@ -1,5 +1,7 @@
 defmodule ExAliyunSls.EmbedPage.StsMiddleware do
-  @moduledoc false
+  @moduledoc """
+  Middleware for Aliyun STS.
+  """
 
   @behaviour Tesla.Middleware
 
@@ -34,7 +36,9 @@ defmodule ExAliyunSls.EmbedPage.StsMiddleware do
 end
 
 defmodule ExAliyunSls.EmbedPage.SigninMiddleware do
-  @moduledoc false
+  @moduledoc """
+  Middleware for Aliyun RAM
+  """
 
   @behaviour Tesla.Middleware
 
