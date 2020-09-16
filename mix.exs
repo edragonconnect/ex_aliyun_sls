@@ -11,7 +11,8 @@ defmodule ExAliyunSls.MixProject do
       docs: [extras: ["README.md"]],
       description: "Aliyun Log Service log producer for Elixir",
       source_url: "https://github.com/edragonconnect/ex_aliyun_sls",
-      package: package()
+      package: package(),
+      aliases: aliases()
     ]
   end
 
@@ -27,6 +28,10 @@ defmodule ExAliyunSls.MixProject do
       licenses: ["MIT"],
       links: %{"Github" => "https://github.com/edragonconnect/ex_aliyun_sls"}
     ]
+  end
+
+  defp aliases do
+    [gen_pb: ["cmd protoc -I protos --elixir_out=lib/ex_aliyun_sls/protobuf protos/*.proto"]]
   end
 
   # Run "mix help deps" to learn about dependencies.
