@@ -25,3 +25,5 @@ erl_crash.dump
 ex_aliyun_sls-*.tar
 
 /config/*.secret.exs
+*.iml
+.idea
