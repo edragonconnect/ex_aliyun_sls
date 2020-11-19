@@ -19,6 +19,7 @@ defmodule ExAliyunSls.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
+      mod: {ExAliyunSls.Application, []},
       extra_applications: [:logger]
     ]
   end
@@ -37,15 +38,15 @@ defmodule ExAliyunSls.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ex_doc, "~> 0.20", only: :dev, runtime: false},
-      {:protobuf, "~> 0.7.1"},
-      {:tesla, "~> 1.3", optional: true},
-      {:jason, "~> 1.2"},
-      {:hackney, "~> 1.15"},
-      {:timex, "~> 3.6"},
-      {:credo, "~> 1.0", only: [:dev, :test], runtime: false},
+      {:tesla, "~> 1.4"},
+      {:finch, "~> 0.5"},
       {:plug, "~> 1.7"},
-      {:elixir_uuid, "~> 1.2"}
+      {:protobuf, "~> 0.7.1"},
+      {:jason, "~> 1.2"},
+      {:timex, "~> 3.6"},
+      {:elixir_uuid, "~> 1.2"},
+      {:ex_doc, "~> 0.20", only: :dev, runtime: false},
+      {:credo, "~> 1.0", only: [:dev, :test], runtime: false},
     ]
   end
 end

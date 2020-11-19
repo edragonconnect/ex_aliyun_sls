@@ -43,8 +43,8 @@ defmodule ExAliyunSls.LoggerBackend.Http do
   """
 
   use Tesla
-  adapter(Tesla.Adapter.Hackney)
 
+  adapter({Tesla.Adapter.Finch, [name: ExAliyunSls.Finch]})
   plug(Tesla.Middleware.Timeout, timeout: 5_000)
   plug(Tesla.Middleware.Retry, delay: 5_000, max_retries: 5)
 
