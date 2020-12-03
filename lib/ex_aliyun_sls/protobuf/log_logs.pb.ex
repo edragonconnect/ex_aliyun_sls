@@ -1,33 +1,5 @@
-defmodule ExAliyunSls.Log do
-  defmodule LogRaw.Content do
-    @moduledoc false
-    use Protobuf, syntax: :proto2
-
-    @type t :: %__MODULE__{
-            Key: String.t(),
-            Value: binary
-          }
-    defstruct [:Key, :Value]
-
-    field(:Key, 1, required: true, type: :string)
-    field(:Value, 2, required: true, type: :bytes)
-  end
-
-  defmodule LogRaw do
-    @moduledoc false
-    use Protobuf, syntax: :proto2
-
-    @type t :: %__MODULE__{
-            Time: non_neg_integer,
-            Contents: [LogRaw.Content.t()]
-          }
-    defstruct [:Time, :Contents]
-
-    field(:Time, 1, required: true, type: :uint32)
-    field(:Contents, 2, repeated: true, type: LogRaw.Content)
-  end
-
-  defmodule LogTagRaw do
+defmodule ExAliyunSls do
+  defmodule Log.Content do
     @moduledoc false
     use Protobuf, syntax: :proto2
 
@@ -41,37 +13,63 @@ defmodule ExAliyunSls.Log do
     field(:Value, 2, required: true, type: :string)
   end
 
-  defmodule LogGroupRaw do
+  defmodule Log do
     @moduledoc false
     use Protobuf, syntax: :proto2
 
     @type t :: %__MODULE__{
-            Logs: [LogRaw.t()],
+            Time: non_neg_integer,
+            Contents: [Log.Content.t()]
+          }
+    defstruct [:Time, :Contents]
+
+    field(:Time, 1, required: true, type: :uint32)
+    field(:Contents, 2, repeated: true, type: Log.Content)
+  end
+
+  defmodule LogTag do
+    @moduledoc false
+    use Protobuf, syntax: :proto2
+
+    @type t :: %__MODULE__{
+            Key: String.t(),
+            Value: String.t()
+          }
+    defstruct [:Key, :Value]
+
+    field(:Key, 1, required: true, type: :string)
+    field(:Value, 2, required: true, type: :string)
+  end
+
+  defmodule LogGroup do
+    @moduledoc false
+    use Protobuf, syntax: :proto2
+
+    @type t :: %__MODULE__{
+            Logs: [Log.t()],
             Reserved: String.t(),
             Topic: String.t(),
             Source: String.t(),
-            MachineUUID: String.t(),
-            LogTags: [LogTagRaw.t()]
+            LogTags: [LogTag.t()]
           }
-    defstruct [:Logs, :Reserved, :Topic, :Source, :MachineUUID, :LogTags]
+    defstruct [:Logs, :Reserved, :Topic, :Source, :LogTags]
 
-    field(:Logs, 1, repeated: true, type: LogRaw)
+    field(:Logs, 1, repeated: true, type: Log)
     field(:Reserved, 2, optional: true, type: :string)
     field(:Topic, 3, optional: true, type: :string)
     field(:Source, 4, optional: true, type: :string)
-    field(:MachineUUID, 5, optional: true, type: :string)
-    field(:LogTags, 6, repeated: true, type: LogTagRaw)
+    field(:LogTags, 6, repeated: true, type: LogTag)
   end
 
-  defmodule LogGroupListRaw do
+  defmodule LogGroupList do
     @moduledoc false
     use Protobuf, syntax: :proto2
 
     @type t :: %__MODULE__{
-            LogGroups: [LogGroupRaw.t()]
+            logGroupList: [LogGroup.t()]
           }
-    defstruct [:LogGroups]
+    defstruct [:logGroupList]
 
-    field(:LogGroups, 1, repeated: true, type: LogGroupRaw)
+    field(:logGroupList, 1, repeated: true, type: LogGroup)
   end
 end

@@ -8,9 +8,8 @@ defmodule ExAliyunSls.LoggerBackend do
   @type level :: Logger.level()
   @type metadata :: [atom]
 
-  alias ExAliyunSls.Log.LogRaw
-  alias ExAliyunSls.Log.LogTagRaw
   alias ExAliyunSls.LoggerBackend.Client
+  alias ExAliyunSls.{Log, LogTag}
 
   def init({__MODULE__, name}) do
     Process.flag(:trap_exit, true)
@@ -189,13 +188,13 @@ defmodule ExAliyunSls.LoggerBackend do
   # build log item
   def build_one_log(level, msg, timestamp, metadata) do
     content_list = [level: level] ++ [msg: msg] ++ metadata
-    LogRaw.new(Time: timestamp, Contents: build_content(content_list))
+    Log.new(Time: timestamp, Contents: build_content(content_list))
   end
 
   def build_content(kv_list) do
     kv_list
     |> Enum.map(fn {k, v} ->
-      LogRaw.Content.new(Key: k |> format, Value: v |> format)
+      Log.Content.new(Key: k |> format, Value: v |> format)
     end)
   end
 
@@ -245,7 +244,7 @@ defmodule ExAliyunSls.LoggerBackend do
             source: source,
             logstore: state.logstore,
             profile: state.profile,
-            logtags: [LogTagRaw.new(Key: "__pack_id__", Value: get_pack_id(source, pack))],
+            logtags: [LogTag.new(Key: "__pack_id__", Value: get_pack_id(source, pack))],
             topic: ""
           })
         end)
@@ -277,7 +276,7 @@ defmodule ExAliyunSls.LoggerBackend do
       source: source,
       logstore: state.logstore,
       profile: state.profile,
-      logtags: [LogTagRaw.new(Key: "__pack_id__", Value: get_pack_id(source, pack))],
+      logtags: [LogTag.new(Key: "__pack_id__", Value: get_pack_id(source, pack))],
       topic: ""
     })
   end

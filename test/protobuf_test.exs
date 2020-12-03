@@ -1,9 +1,7 @@
 defmodule ProtobufTest do
   use ExUnit.Case, async: false
 
-  alias ExAliyunSls.Log.LogRaw
-  alias ExAliyunSls.Log.LogTagRaw
-  alias ExAliyunSls.Log.LogGroupRaw, as: LogGroup
+  alias ExAliyunSls.{Log, LogTag, LogGroup}
 
   def build_item do
     item_key = "test_item_key"
@@ -21,72 +19,72 @@ defmodule ProtobufTest do
     timestamp = 424_314_210
 
     logitems = [
-      LogRaw.new(
+      Log.new(
         Time: timestamp,
         Contents: [
-          LogRaw.Content.new(Key: item_key, Value: item_value),
-          LogRaw.Content.new(Key: item_key, Value: item_value),
-          LogRaw.Content.new(Key: item_key, Value: item_value),
-          LogRaw.Content.new(Key: item_key, Value: item_value),
-          LogRaw.Content.new(Key: item_key, Value: item_value)
+          Log.Content.new(Key: item_key, Value: item_value),
+          Log.Content.new(Key: item_key, Value: item_value),
+          Log.Content.new(Key: item_key, Value: item_value),
+          Log.Content.new(Key: item_key, Value: item_value),
+          Log.Content.new(Key: item_key, Value: item_value)
         ]
       ),
-      LogRaw.new(
+      Log.new(
         Time: timestamp,
         Contents: [
-          LogRaw.Content.new(Key: item_key, Value: item_value),
-          LogRaw.Content.new(Key: item_key, Value: item_value),
-          LogRaw.Content.new(Key: item_key, Value: item_value),
-          LogRaw.Content.new(Key: item_key, Value: item_value),
-          LogRaw.Content.new(Key: item_key, Value: item_value)
+          Log.Content.new(Key: item_key, Value: item_value),
+          Log.Content.new(Key: item_key, Value: item_value),
+          Log.Content.new(Key: item_key, Value: item_value),
+          Log.Content.new(Key: item_key, Value: item_value),
+          Log.Content.new(Key: item_key, Value: item_value)
         ]
       ),
-      LogRaw.new(
+      Log.new(
         Time: timestamp,
         Contents: [
-          LogRaw.Content.new(Key: item_key, Value: item_value),
-          LogRaw.Content.new(Key: item_key, Value: item_value),
-          LogRaw.Content.new(Key: item_key, Value: item_value),
-          LogRaw.Content.new(Key: item_key, Value: item_value),
-          LogRaw.Content.new(Key: item_key, Value: item_value)
+          Log.Content.new(Key: item_key, Value: item_value),
+          Log.Content.new(Key: item_key, Value: item_value),
+          Log.Content.new(Key: item_key, Value: item_value),
+          Log.Content.new(Key: item_key, Value: item_value),
+          Log.Content.new(Key: item_key, Value: item_value)
         ]
       ),
-      LogRaw.new(
+      Log.new(
         Time: timestamp,
         Contents: [
-          LogRaw.Content.new(Key: item_key, Value: item_value),
-          LogRaw.Content.new(Key: item_key, Value: item_value),
-          LogRaw.Content.new(Key: item_key, Value: item_value),
-          LogRaw.Content.new(Key: item_key, Value: item_value),
-          LogRaw.Content.new(Key: item_key, Value: item_value)
+          Log.Content.new(Key: item_key, Value: item_value),
+          Log.Content.new(Key: item_key, Value: item_value),
+          Log.Content.new(Key: item_key, Value: item_value),
+          Log.Content.new(Key: item_key, Value: item_value),
+          Log.Content.new(Key: item_key, Value: item_value)
         ]
       ),
-      LogRaw.new(
+      Log.new(
         Time: timestamp,
         Contents: [
-          LogRaw.Content.new(Key: item_key, Value: item_value),
-          LogRaw.Content.new(Key: item_key, Value: item_value),
-          LogRaw.Content.new(Key: item_key, Value: item_value),
-          LogRaw.Content.new(Key: item_key, Value: item_value),
-          LogRaw.Content.new(Key: item_key, Value: item_value)
+          Log.Content.new(Key: item_key, Value: item_value),
+          Log.Content.new(Key: item_key, Value: item_value),
+          Log.Content.new(Key: item_key, Value: item_value),
+          Log.Content.new(Key: item_key, Value: item_value),
+          Log.Content.new(Key: item_key, Value: item_value)
         ]
       ),
-      LogRaw.new(
+      Log.new(
         Time: timestamp,
         Contents: [
-          LogRaw.Content.new(Key: item_key, Value: item_value),
-          LogRaw.Content.new(Key: item_key, Value: item_value),
-          LogRaw.Content.new(Key: item_key, Value: item_value),
-          LogRaw.Content.new(Key: item_key, Value: item_value),
-          LogRaw.Content.new(Key: item_key, Value: item_value)
+          Log.Content.new(Key: item_key, Value: item_value),
+          Log.Content.new(Key: item_key, Value: item_value),
+          Log.Content.new(Key: item_key, Value: item_value),
+          Log.Content.new(Key: item_key, Value: item_value),
+          Log.Content.new(Key: item_key, Value: item_value)
         ]
       )
     ]
 
     logtags = [
-      LogTagRaw.new(Key: tag_key, Value: tag_value),
-      LogTagRaw.new(Key: tag_key, Value: tag_value),
-      LogTagRaw.new(Key: tag_key, Value: tag_value)
+      LogTag.new(Key: tag_key, Value: tag_value),
+      LogTag.new(Key: tag_key, Value: tag_value),
+      LogTag.new(Key: tag_key, Value: tag_value)
     ]
 
     LogGroup.new(

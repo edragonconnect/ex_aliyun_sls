@@ -6,9 +6,7 @@ defmodule ExAliyunSlsTest do
   @backend {ExAliyunSls.LoggerBackend, :sls}
 
   alias ExAliyunSls.LoggerBackend.Client
-  alias ExAliyunSls.Log.LogRaw
-  alias ExAliyunSls.Log.LogTagRaw
-  alias ExAliyunSls.LoggerBackend
+  alias ExAliyunSls.{Log, LogTag, LoggerBackend}
 
   import LoggerBackend, only: [metadata_matches?: 2]
 
@@ -23,10 +21,10 @@ defmodule ExAliyunSlsTest do
     timestamp = add_timestamp()
     result = LoggerBackend.build_one_log(:info, "test", timestamp, [])
 
-    log = %LogRaw{
+    log = %Log{
       Contents: [
-        %LogRaw.Content{Key: "level", Value: "info"},
-        %LogRaw.Content{Key: "msg", Value: "test"}
+        %Log.Content{Key: "level", Value: "info"},
+        %Log.Content{Key: "msg", Value: "test"}
       ],
       Time: timestamp
     }
@@ -36,20 +34,20 @@ defmodule ExAliyunSlsTest do
 
   test "put logs" do
     logitems = [
-      LogRaw.new(
+      Log.new(
         Time: add_timestamp(),
         Contents: [
-          LogRaw.Content.new(Key: "file", Value: "ex_aliyun_sls/lib/ex_aliyun_sls/client.ex"),
-          LogRaw.Content.new(Key: "cc", Value: "cc1")
+          Log.Content.new(Key: "file", Value: "ex_aliyun_sls/lib/ex_aliyun_sls/client.ex"),
+          Log.Content.new(Key: "cc", Value: "cc1")
         ]
       ),
-      LogRaw.new(Time: add_timestamp(), Contents: [LogRaw.Content.new(Key: "aa1", Value: "bb1")]),
-      LogRaw.new(Time: add_timestamp(), Contents: [LogRaw.Content.new(Key: "aa", Value: "bb2")])
+      Log.new(Time: add_timestamp(), Contents: [Log.Content.new(Key: "aa1", Value: "bb1")]),
+      Log.new(Time: add_timestamp(), Contents: [Log.Content.new(Key: "aa", Value: "bb2")])
     ]
 
     logtags = [
-      LogTagRaw.new(Key: "haha", Value: "hehe"),
-      LogTagRaw.new(Key: "hey", Value: "test")
+      LogTag.new(Key: "haha", Value: "hehe"),
+      LogTag.new(Key: "hey", Value: "test")
     ]
 
     source = LoggerBackend.get_source()

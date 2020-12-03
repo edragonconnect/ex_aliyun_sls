@@ -32,7 +32,7 @@ defmodule ExAliyunSls.MixProject do
   end
 
   defp aliases do
-    [gen_pb: ["cmd protoc -I protos --elixir_out=lib/ex_aliyun_sls/protobuf protos/*.proto"]]
+    ["gen.pb": ["cmd protoc -I protos --elixir_out=lib/ex_aliyun_sls/protobuf protos/*.proto"]]
   end
 
   # Run "mix help deps" to learn about dependencies.

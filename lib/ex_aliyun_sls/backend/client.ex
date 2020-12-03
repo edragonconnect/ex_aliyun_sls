@@ -4,7 +4,7 @@ defmodule ExAliyunSls.LoggerBackend.Client do
   """
 
   alias ExAliyunSls.LoggerBackend.Http
-  alias ExAliyunSls.Log.LogGroupRaw, as: LogGroup
+  alias ExAliyunSls.LogGroup
 
   def post_log_store_logs(%{
         logitems: logitems,
