@@ -8,8 +8,7 @@ defmodule ExAliyunSls.LoggerBackend do
   @type level :: Logger.level()
   @type metadata :: [atom]
 
-  alias ExAliyunSls.LoggerBackend.Client
-  alias ExAliyunSls.{Log, LogTag}
+  alias ExAliyunSls.{Log, LogTag, Client, Utils}
 
   def init({__MODULE__, name}) do
     Process.flag(:trap_exit, true)
@@ -46,7 +45,7 @@ defmodule ExAliyunSls.LoggerBackend do
   end
 
   def handle_info(:clear_current_package, state) do
-    clear_current_package(state)
+    flush2sls(state)
     Process.send_after(self(), :clear_current_package, state.package_timeout)
     {:ok, state}
   end
@@ -119,8 +118,7 @@ defmodule ExAliyunSls.LoggerBackend do
       source: nil,
       package_count: nil,
       package_timeout: nil,
-      profile: nil,
-      logstore: nil
+      profile: nil
     }
 
     configure(name, opts, state)
@@ -145,19 +143,9 @@ defmodule ExAliyunSls.LoggerBackend do
       end
 
     sls_config = Application.get_env(:ex_aliyun_sls, :backend)
-    package_count = Keyword.get(sls_config, :package_count, 100)
+    package_count = Keyword.get(sls_config, :package_count, 100) - 1
     package_timeout = Keyword.get(sls_config, :package_timeout)
-    logstore = Keyword.get(sls_config, :logstore)
-    project = Keyword.get(sls_config, :project)
-    endpoint = Keyword.get(sls_config, :endpoint)
-
-    profile = %{
-      project: project,
-      endpoint: endpoint,
-      access_key_id: Keyword.get(sls_config, :access_key_id),
-      access_key: Keyword.get(sls_config, :access_key),
-      host: project <> "." <> endpoint
-    }
+    profile = Utils.get_profile()
 
     %{
       state
@@ -165,24 +153,11 @@ defmodule ExAliyunSls.LoggerBackend do
         level: level,
         metadata: metadata,
         metadata_filter: metadata_filter,
-        source: get_source(),
+        source: Utils.get_source(),
         package_count: package_count,
         package_timeout: package_timeout,
-        profile: profile,
-        logstore: logstore
+        profile: profile
     }
-  end
-
-  def get_source do
-    case Node.self() do
-      :nonode@nohost -> get_inner_ip()
-      node_name -> node_name |> to_string
-    end
-  end
-
-  defp get_inner_ip do
-    {:ok, [{{p1, p2, p3, p4}, _, _} | _]} = :inet.getif()
-    "#{p1}.#{p2}.#{p3}.#{p4}"
   end
 
   # build log item
@@ -215,41 +190,15 @@ defmodule ExAliyunSls.LoggerBackend do
 
   # log package functions
   def put_item(item, %{package_count: package_count} = state) do
-    case get_count() < package_count do
-      true ->
-        add_item_to_package(item)
-
-      false ->
-        push_to_sls(state)
-        add_item_to_package(item)
-    end
-  end
-
-  def add_item_to_package(item) do
     Agent.update(
       __MODULE__,
-      fn {list, count, pack} -> {[item | list], count + 1, pack} end
-    )
-  end
+      fn
+        {list, count, pack_id} when count < package_count ->
+          {[item | list], count + 1, pack_id}
 
-  def push_to_sls(state) do
-    Agent.update(
-      __MODULE__,
-      fn {list, _, pack} ->
-        Task.start(fn ->
-          source = state.source
-
-          Client.post_log_store_logs(%{
-            logitems: list |> Enum.reverse(),
-            source: source,
-            logstore: state.logstore,
-            profile: state.profile,
-            logtags: [LogTag.new(Key: "__pack_id__", Value: get_pack_id(source, pack))],
-            topic: ""
-          })
-        end)
-
-        {[], 0, pack + 1}
+        {list, _count, pack_id} ->
+          send_logs(state, [item | list], pack_id)
+          {[], 0, pack_id + 1}
       end
     )
   end
@@ -260,36 +209,44 @@ defmodule ExAliyunSls.LoggerBackend do
     context_hash <> "-" <> pack
   end
 
-  def clear_current_package(state) do
-    case get_count() do
-      0 -> "empty"
-      _ -> push_to_sls(state)
+  def flush2sls(state) do
+    Agent.update(
+      __MODULE__,
+      fn
+        {[], _, pack_id} ->
+          {[], 0, pack_id}
+
+        {list, _, pack_id} ->
+          send_logs(state, list, pack_id)
+          {[], 0, pack_id + 1}
+      end
+    )
+  end
+
+  defp push_when_exit(state) do
+    case Agent.get(__MODULE__, & &1) do
+      {[], _, _} ->
+        :skip
+
+      {list, _, pack} ->
+        source = state.source
+        log_tags = [LogTag.new(Key: "__pack_id__", Value: get_pack_id(source, pack))]
+        Client.push2log_store(Enum.reverse(list), log_tags, "", source, state.profile)
     end
   end
 
-  def push_when_exit(state) do
-    {list, _, pack} = Agent.get(__MODULE__, fn package -> package end)
-    source = state.source
-
-    Client.post_log_store_logs(%{
-      logitems: list |> Enum.reverse(),
-      source: source,
-      logstore: state.logstore,
-      profile: state.profile,
-      logtags: [LogTag.new(Key: "__pack_id__", Value: get_pack_id(source, pack))],
-      topic: ""
-    })
-  end
-
-  def get_package do
-    Agent.get(__MODULE__, fn {package, _, _} -> package end)
-  end
-
-  def get_count do
-    Agent.get(__MODULE__, fn {_, count, _} -> count end)
-  end
+  def get_package, do: Agent.get(__MODULE__, &elem(&1, 0))
+  def get_count, do: Agent.get(__MODULE__, &elem(&1, 1))
 
   def empty_package do
     Agent.update(__MODULE__, fn _ -> {[], 0, 0} end)
+  end
+
+  defp send_logs(state, log_items, pack_id) do
+    Task.start(fn ->
+      source = state.source
+      log_tags = [LogTag.new(Key: "__pack_id__", Value: get_pack_id(source, pack_id))]
+      Client.push2log_store(Enum.reverse(log_items), log_tags, "", source, state.profile)
+    end)
   end
 end

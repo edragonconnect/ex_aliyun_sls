@@ -1,29 +1,21 @@
-defmodule ExAliyunSls.LoggerBackend.Client do
+defmodule ExAliyunSls.Client do
   @moduledoc """
-  Aliyun LogService client to put logs.
+  Aliyun LogService client
   """
-
-  alias ExAliyunSls.LoggerBackend.Http
+  use Tesla
   alias ExAliyunSls.LogGroup
 
-  def post_log_store_logs(%{
-        logitems: logitems,
-        source: source,
-        logstore: logstore,
-        profile: profile,
-        logtags: logtags,
-        topic: topic
-      }) do
-    body =
-      LogGroup.new(Logs: logitems, Source: source, LogTags: logtags, Topic: topic)
-      |> LogGroup.encode()
+  adapter({Tesla.Adapter.Finch, [name: ExAliyunSls.Finch]})
+  plug(Tesla.Middleware.Timeout, timeout: 5_000)
+  plug(Tesla.Middleware.Retry, delay: 5_000, max_retries: 5)
 
-    resource = "/logstores/" <> logstore <> "/shards/lb"
-    content_type = "application/x-protobuf"
-    request_api("POST", body, resource, content_type, profile)
+  def push2log_store(log_items, log_tags, topic, source, profile) do
+    LogGroup.new(Logs: log_items, Source: source, LogTags: log_tags, Topic: topic)
+    |> LogGroup.encode()
+    |> request_api(profile)
   end
 
-  def request_api(method, body, resource, content_type, profile) do
+  def request_api(body, profile) do
     host = profile.host
     date = Timex.now() |> Timex.format!("%a, %d %b %Y %H:%M:%S GMT", :strftime)
     body_length = body |> byte_size |> to_string
@@ -37,7 +29,7 @@ defmodule ExAliyunSls.LoggerBackend.Client do
       }"
 
     content =
-      "#{method}\n#{md5}\n#{content_type}\n#{date}\n#{canonicalized_log_headers}\n#{resource}"
+      "POST\n#{md5}\napplication/x-protobuf\n#{date}\n#{canonicalized_log_headers}\n#{profile.resource}"
 
     signature = :crypto.hmac(:sha, profile.access_key, content) |> Base.encode64()
     authorization = "LOG " <> profile.access_key_id <> ":" <> signature
@@ -45,7 +37,7 @@ defmodule ExAliyunSls.LoggerBackend.Client do
     headers = [
       {"Content-Length", body_length},
       {"Content-MD5", md5},
-      {"content-type", content_type},
+      {"content-type", "application/x-protobuf"},
       {"x-log-bodyrawsize", body_length},
       {"x-log-apiversion", version},
       {"x-log-signaturemethod", sign_method},
@@ -54,6 +46,15 @@ defmodule ExAliyunSls.LoggerBackend.Client do
       {"Authorization", authorization}
     ]
 
-    Http.send_post("http://#{host}#{resource}", body, headers: headers)
+    case post("http://#{host}#{profile.resource}", body, headers: headers) do
+      {:ok, %Tesla.Env{status: 200}} ->
+        {:ok, "success"}
+
+      {:ok, %Tesla.Env{status: code, body: body}} ->
+        {:error, "error_code: #{code}, msg: #{body}"}
+
+      error ->
+        error
+    end
   end
 end

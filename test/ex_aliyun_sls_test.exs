@@ -5,8 +5,8 @@ defmodule ExAliyunSlsTest do
 
   @backend {ExAliyunSls.LoggerBackend, :sls}
 
-  alias ExAliyunSls.LoggerBackend.Client
-  alias ExAliyunSls.{Log, LogTag, LoggerBackend}
+  alias ExAliyunSls.Client
+  alias ExAliyunSls.{Log, LogTag, LoggerBackend, Utils}
 
   import LoggerBackend, only: [metadata_matches?: 2]
 
@@ -15,7 +15,7 @@ defmodule ExAliyunSlsTest do
   end
 
   test "build one log" do
-    Agent.start_link(fn -> LoggerBackend.get_source() end, name: :source)
+    Agent.start_link(fn -> Utils.get_source() end, name: :source)
     Agent.start_link(fn -> [] end, name: :log_package)
     Agent.start_link(fn -> 0 end, name: :log_count)
     timestamp = add_timestamp()
@@ -33,7 +33,7 @@ defmodule ExAliyunSlsTest do
   end
 
   test "put logs" do
-    logitems = [
+    log_items = [
       Log.new(
         Time: add_timestamp(),
         Contents: [
@@ -45,36 +45,16 @@ defmodule ExAliyunSlsTest do
       Log.new(Time: add_timestamp(), Contents: [Log.Content.new(Key: "aa", Value: "bb2")])
     ]
 
-    logtags = [
+    log_tags = [
       LogTag.new(Key: "haha", Value: "hehe"),
       LogTag.new(Key: "hey", Value: "test")
     ]
 
-    source = LoggerBackend.get_source()
-    sls_config = Application.get_env(:ex_aliyun_sls, :backend)
-    logstore = Keyword.get(sls_config, :logstore)
-    project = Keyword.get(sls_config, :project)
-    endpoint = Keyword.get(sls_config, :endpoint)
+    topic = "topic_test"
+    source = Utils.get_source()
+    profile = Utils.get_profile()
 
-    profile = %{
-      project: project,
-      endpoint: endpoint,
-      access_key_id: Keyword.get(sls_config, :access_key_id),
-      access_key: Keyword.get(sls_config, :access_key),
-      host: project <> "." <> endpoint
-    }
-
-    {:ok, response} =
-      Client.post_log_store_logs(%{
-        topic: "topic_test",
-        logitems: logitems,
-        logstore: logstore,
-        logtags: logtags,
-        source: source,
-        profile: profile
-      })
-
-    assert response == "success"
+    assert Client.push2log_store(log_items, log_tags, topic, source, profile) == {:ok, "success"}
   end
 
   test "metadata_matches?" do
@@ -90,21 +70,33 @@ defmodule ExAliyunSlsTest do
     config(level: :debug)
     assert LoggerBackend.get_count() == 0
     Logger.info("test 1")
-    Process.sleep(1_000)
+    Process.sleep(100)
     assert LoggerBackend.get_count() == 1
     Logger.debug("test 2")
     Logger.error("test 3")
-    Process.sleep(1_000)
+    Process.sleep(100)
     assert LoggerBackend.get_count() == 3
-    Process.sleep(1_500)
+  end
+
+  test "LoggerBackend package_timeout setting" do
     assert LoggerBackend.get_count() == 0
+    Logger.info("package_timeout start: #{System.system_time(:second)}")
+    Process.sleep(5_100)
+    assert LoggerBackend.get_count() == 0
+  end
+
+  test "LoggerBackend package_count setting" do
+    assert LoggerBackend.get_count() == 0
+    Enum.map(1..11, &Logger.info("package_count #{&1}"))
+    Process.sleep(100)
+    assert LoggerBackend.get_count() == 1
   end
 
   test "can configure log level" do
     config(level: :info)
 
     Logger.debug("hello")
-    Process.sleep(1_000)
+    Process.sleep(100)
     assert LoggerBackend.get_count() == 0
   end
 
