@@ -126,10 +126,10 @@ defmodule ExAliyunSls.LoggerBackend do
     Application.put_env(:logger, name, opts)
 
     level = Keyword.get(opts, :level)
-    metadata = Keyword.get(opts, :metadata, [])
+    metadata_filter = Keyword.get(opts, :metadata_filter)
 
     metadata =
-      case metadata do
+      case Keyword.get(opts, :metadata, []) do
         :all ->
           :all
 
@@ -138,19 +138,19 @@ defmodule ExAliyunSls.LoggerBackend do
           |> Enum.uniq()
       end
 
-    metadata_filter = Keyword.get(opts, :metadata_filter)
-
     sls_config = Application.get_env(:ex_aliyun_sls, :backend)
-
     package_count = Keyword.get(sls_config, :package_count, 100)
     package_timeout = Keyword.get(sls_config, :package_timeout)
     logstore = Keyword.get(sls_config, :logstore)
+    project = Keyword.get(sls_config, :project)
+    endpoint = Keyword.get(sls_config, :endpoint)
 
     profile = %{
-      endpoint: Keyword.get(sls_config, :endpoint),
+      project: project,
+      endpoint: endpoint,
       access_key_id: Keyword.get(sls_config, :access_key_id),
       access_key: Keyword.get(sls_config, :access_key),
-      project: Keyword.get(sls_config, :project)
+      host: project <> "." <> endpoint
     }
 
     state = %{
@@ -179,11 +179,8 @@ defmodule ExAliyunSls.LoggerBackend do
 
   def get_source do
     case Node.self() do
-      :nonode@nohost ->
-        get_inner_ip()
-
-      node_name ->
-        node_name |> to_string
+      :nonode@nohost -> get_inner_ip()
+      node_name -> node_name |> to_string
     end
   end
 

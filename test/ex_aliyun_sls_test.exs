@@ -53,16 +53,17 @@ defmodule ExAliyunSlsTest do
     ]
 
     source = LoggerBackend.get_source()
-
     sls_config = Application.get_env(:ex_aliyun_sls, :backend)
-
     logstore = Keyword.get(sls_config, :logstore)
+    project = Keyword.get(sls_config, :project)
+    endpoint = Keyword.get(sls_config, :endpoint)
 
     profile = %{
-      endpoint: Keyword.get(sls_config, :endpoint),
+      project: project,
+      endpoint: endpoint,
       access_key_id: Keyword.get(sls_config, :access_key_id),
       access_key: Keyword.get(sls_config, :access_key),
-      project: Keyword.get(sls_config, :project)
+      host: project <> "." <> endpoint
     }
 
     {:ok, response} =
@@ -72,12 +73,7 @@ defmodule ExAliyunSlsTest do
         logstore: logstore,
         logtags: logtags,
         source: source,
-        profile: %{
-          endpoint: profile.endpoint,
-          access_key: profile.access_key,
-          access_key_id: profile.access_key_id,
-          project: profile.project
-        }
+        profile: profile
       })
 
     assert response == "success"

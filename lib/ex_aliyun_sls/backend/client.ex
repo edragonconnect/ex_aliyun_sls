@@ -14,22 +14,17 @@ defmodule ExAliyunSls.LoggerBackend.Client do
         logtags: logtags,
         topic: topic
       }) do
-    log_group =
-      LogGroup.new(
-        Logs: logitems,
-        Source: source,
-        LogTags: logtags,
-        Topic: topic
-      )
+    body =
+      LogGroup.new(Logs: logitems, Source: source, LogTags: logtags, Topic: topic)
+      |> LogGroup.encode()
 
-    body = LogGroup.encode(log_group)
     resource = "/logstores/" <> logstore <> "/shards/lb"
     content_type = "application/x-protobuf"
-    request_api("POST", :post_log_store_logs, body, resource, content_type, profile)
+    request_api("POST", body, resource, content_type, profile)
   end
 
-  def request_api(method, api, body, resource, content_type, profile) do
-    host = profile.project <> "." <> profile.endpoint
+  def request_api(method, body, resource, content_type, profile) do
+    host = profile.host
     date = Timex.now() |> Timex.format!("%a, %d %b %Y %H:%M:%S GMT", :strftime)
     body_length = body |> byte_size |> to_string
     md5 = :crypto.hash(:md5, body) |> Base.encode16(case: :upper)
@@ -59,19 +54,6 @@ defmodule ExAliyunSls.LoggerBackend.Client do
       {"Authorization", authorization}
     ]
 
-    url = "http://#{profile.project}.#{profile.endpoint}#{resource}"
-
-    case method do
-      "POST" ->
-        api
-        |> Http.client(url, body, headers)
-        |> Http.post()
-
-      "GET" ->
-        "TODO"
-
-      method ->
-        method
-    end
+    Http.send_post("http://#{host}#{resource}", body, headers: headers)
   end
 end
