@@ -16,7 +16,13 @@ defmodule ExAliyunSls.LoggerBackend do
     Process.flag(:trap_exit, true)
 
     Agent.start_link(fn -> {[], 0, 0} end, name: __MODULE__)
-    {:ok, configure(name, [])}
+    state = configure(name, [])
+
+    if is_integer(state.package_timeout) do
+      Process.send_after(self(), :clear_current_package, state.package_timeout)
+    end
+
+    {:ok, state}
   end
 
   def handle_call({:configure, opts}, %{name: name} = state) do
@@ -42,6 +48,7 @@ defmodule ExAliyunSls.LoggerBackend do
 
   def handle_info(:clear_current_package, state) do
     clear_current_package(state)
+    Process.send_after(self(), :clear_current_package, state.package_timeout)
     {:ok, state}
   end
 
@@ -153,7 +160,7 @@ defmodule ExAliyunSls.LoggerBackend do
       host: project <> "." <> endpoint
     }
 
-    state = %{
+    %{
       state
       | name: name,
         level: level,
@@ -165,16 +172,6 @@ defmodule ExAliyunSls.LoggerBackend do
         profile: profile,
         logstore: logstore
     }
-
-    case package_timeout do
-      nil ->
-        :ok
-
-      _timeout ->
-        clear_current_package(state)
-    end
-
-    state
   end
 
   def get_source do
@@ -264,13 +261,11 @@ defmodule ExAliyunSls.LoggerBackend do
     context_hash <> "-" <> pack
   end
 
-  def clear_current_package(%{package_timeout: package_timeout} = state) do
+  def clear_current_package(state) do
     case get_count() do
       0 -> "empty"
       _ -> push_to_sls(state)
     end
-
-    Process.send_after(self(), :clear_current_package, package_timeout)
   end
 
   def push_when_exit(state) do

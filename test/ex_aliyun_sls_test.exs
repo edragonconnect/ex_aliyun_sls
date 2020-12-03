@@ -98,6 +98,8 @@ defmodule ExAliyunSlsTest do
     Logger.error("test 3")
     Process.sleep(1_000)
     assert LoggerBackend.get_count() == 3
+    Process.sleep(1_500)
+    assert LoggerBackend.get_count() == 0
   end
 
   test "can configure log level" do
