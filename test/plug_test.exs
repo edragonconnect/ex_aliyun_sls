@@ -1,4 +1,4 @@
-defmodule PlugTest do
+defmodule ExAliyunSls.PlugTest do
   use ExUnit.Case, async: false
   use Plug.Test
 

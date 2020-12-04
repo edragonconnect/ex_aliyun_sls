@@ -1,4 +1,4 @@
-defmodule ProtobufTest do
+defmodule ExAliyunSls.ProtobufTest do
   use ExUnit.Case, async: false
 
   alias ExAliyunSls.{Log, LogTag, LogGroup}

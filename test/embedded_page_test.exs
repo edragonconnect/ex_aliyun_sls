@@ -1,4 +1,4 @@
-defmodule EmbeddedPageTest do
+defmodule ExAliyunSls.EmbeddedPageTest do
   use ExUnit.Case, async: false
 
   test "get sts token" do
