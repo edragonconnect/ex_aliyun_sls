@@ -3,8 +3,9 @@ defmodule ExAliyunSls.Producer do
   use GenServer
   alias ExAliyunSls.{Client, Utils}
 
-  def start_link(state, opts \\ []) do
-    GenServer.start_link(__MODULE__, state, opts)
+  def start_link(opts \\ []) do
+    {name, opts} = Keyword.pop(opts, :name)
+    GenServer.start_link(__MODULE__, opts, name: name)
   end
 
   def add_log_item(pid, log_item), do: GenServer.cast(pid, {:add_item, log_item})
