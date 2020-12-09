@@ -98,15 +98,12 @@ defmodule ExAliyunSls.LoggerBackend do
   defp take_metadata(metadata, :all), do: metadata
 
   defp take_metadata(metadata, keys) do
-    metadatas =
-      Enum.reduce(keys, [], fn key, acc ->
-        case Keyword.fetch(metadata, key) do
-          {:ok, val} -> [{key, val} | acc]
-          :error -> acc
-        end
-      end)
-
-    Enum.reverse(metadatas)
+    Enum.reduce(keys, [], fn key, acc ->
+      case Keyword.fetch(metadata, key) do
+        {:ok, val} -> [{key, val} | acc]
+        :error -> acc
+      end
+    end)
   end
 
   defp configure(name, opts) do
@@ -138,8 +135,7 @@ defmodule ExAliyunSls.LoggerBackend do
           :all
 
         metadata ->
-          (metadata ++ [:duration, :method, :status, :state, :request_path, :params])
-          |> Enum.uniq()
+          Enum.uniq([:duration, :method, :status, :state, :request_path, :params | metadata])
       end
 
     sls_config = Application.get_env(:ex_aliyun_sls, :backend)
@@ -162,31 +158,24 @@ defmodule ExAliyunSls.LoggerBackend do
 
   # build log item
   def build_one_log(level, msg, timestamp, metadata) do
-    content_list = [level: level] ++ [msg: msg] ++ metadata
-    Log.new(Time: timestamp, Contents: build_content(content_list))
+    msg = msg |> Logger.Formatter.prune() |> to_string()
+
+    contents =
+      metadata
+      |> Enum.reduce(
+        [{"level", Atom.to_string(level)}, {"msg", msg}],
+        fn {k, v}, acc ->
+          if formatted = metadata(k, v) do
+            [{Atom.to_string(k), formatted} | acc]
+          else
+            acc
+          end
+        end
+      )
+      |> Enum.map(fn {k, v} -> Log.Content.new(Key: k, Value: v) end)
+
+    Log.new(Time: timestamp, Contents: contents)
   end
-
-  def build_content(kv_list) do
-    kv_list
-    |> Enum.map(fn {k, v} ->
-      Log.Content.new(Key: k |> format, Value: v |> format)
-    end)
-  end
-
-  def format(item) when is_binary(item) or is_list(item) do
-    res = Logger.Formatter.prune(item)
-
-    case is_binary(res) do
-      true ->
-        res
-
-      false ->
-        inspect(res)
-    end
-  end
-
-  def format(item) when is_atom(item) or is_number(item), do: to_string(item)
-  def format(item), do: inspect(item)
 
   # log package functions
   def put_item(item, %{package_count: package_count} = state) do
@@ -249,4 +238,44 @@ defmodule ExAliyunSls.LoggerBackend do
       Client.push2log_store(Enum.reverse(log_items), log_tags, "", source, state.profile)
     end)
   end
+
+  defp metadata(:time, _), do: nil
+  defp metadata(:gl, _), do: nil
+
+  defp metadata(_, nil), do: nil
+  defp metadata(_, string) when is_binary(string), do: string
+  defp metadata(_, integer) when is_integer(integer), do: Integer.to_string(integer)
+  defp metadata(_, float) when is_float(float), do: Float.to_string(float)
+  defp metadata(_, pid) when is_pid(pid), do: pid |> :erlang.pid_to_list() |> to_string()
+
+  defp metadata(_, atom) when is_atom(atom) do
+    case Atom.to_string(atom) do
+      "Elixir." <> rest -> rest
+      "nil" -> ""
+      binary -> binary
+    end
+  end
+
+  defp metadata(_, ref) when is_reference(ref) do
+    '#Ref' ++ rest = :erlang.ref_to_list(ref)
+    to_string(rest)
+  end
+
+  defp metadata(:file, file) when is_list(file), do: to_string(file)
+
+  defp metadata(:domain, [head | tail]) when is_atom(head) do
+    Enum.map_intersperse([head | tail], ?., &Atom.to_string/1)
+  end
+
+  defp metadata(:mfa, {mod, fun, arity})
+       when is_atom(mod) and is_atom(fun) and is_integer(arity) do
+    Exception.format_mfa(mod, fun, arity)
+  end
+
+  defp metadata(:initial_call, {mod, fun, arity})
+       when is_atom(mod) and is_atom(fun) and is_integer(arity) do
+    Exception.format_mfa(mod, fun, arity)
+  end
+
+  defp metadata(_, _), do: nil
 end
