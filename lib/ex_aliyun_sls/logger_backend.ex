@@ -239,9 +239,6 @@ defmodule ExAliyunSls.LoggerBackend do
     end)
   end
 
-  defp metadata(:time, _), do: nil
-  defp metadata(:gl, _), do: nil
-
   defp metadata(_, nil), do: nil
   defp metadata(_, string) when is_binary(string), do: string
   defp metadata(_, integer) when is_integer(integer), do: Integer.to_string(integer)
@@ -261,7 +258,9 @@ defmodule ExAliyunSls.LoggerBackend do
     to_string(rest)
   end
 
+  defp metadata(:params, params) when is_list(params), do: inspect(params)
   defp metadata(:file, file) when is_list(file), do: to_string(file)
+  defp metadata(_, list) when is_list(list), do: list |> Logger.Formatter.prune() |> to_string()
 
   defp metadata(:domain, [head | tail]) when is_atom(head) do
     Enum.map_intersperse([head | tail], ?., &Atom.to_string/1)
@@ -277,5 +276,5 @@ defmodule ExAliyunSls.LoggerBackend do
     Exception.format_mfa(mod, fun, arity)
   end
 
-  defp metadata(_, _), do: nil
+  defp metadata(_, value), do: inspect(value)
 end

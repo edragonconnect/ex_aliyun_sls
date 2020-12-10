@@ -18,7 +18,7 @@ defmodule ExAliyunSlsTest do
     Agent.start_link(fn -> Utils.get_source() end, name: :source)
     Agent.start_link(fn -> [] end, name: :log_package)
     Agent.start_link(fn -> 0 end, name: :log_count)
-    timestamp = add_timestamp()
+    timestamp = now_timestamp()
     result = LoggerBackend.build_one_log(:info, "test", timestamp, [])
 
     log = %Log{
@@ -35,14 +35,14 @@ defmodule ExAliyunSlsTest do
   test "put logs" do
     log_items = [
       Log.new(
-        Time: add_timestamp(),
+        Time: now_timestamp(),
         Contents: [
           Log.Content.new(Key: "file", Value: "ex_aliyun_sls/lib/ex_aliyun_sls/client.ex"),
           Log.Content.new(Key: "cc", Value: "cc1")
         ]
       ),
-      Log.new(Time: add_timestamp(), Contents: [Log.Content.new(Key: "aa1", Value: "bb1")]),
-      Log.new(Time: add_timestamp(), Contents: [Log.Content.new(Key: "aa", Value: "bb2")])
+      Log.new(Time: now_timestamp(), Contents: [Log.Content.new(Key: "aa1", Value: "bb1")]),
+      Log.new(Time: now_timestamp(), Contents: [Log.Content.new(Key: "aa", Value: "bb2")])
     ]
 
     log_tags = [
@@ -100,10 +100,7 @@ defmodule ExAliyunSlsTest do
     assert LoggerBackend.get_count() == 0
   end
 
-  defp add_timestamp do
-    Timex.now()
-    |> Timex.to_unix()
-  end
+  defp now_timestamp, do: System.system_time(:second)
 
   defp config(opts) do
     Logger.configure_backend(@backend, opts)
