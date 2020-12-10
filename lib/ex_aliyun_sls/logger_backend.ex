@@ -163,18 +163,20 @@ defmodule ExAliyunSls.LoggerBackend do
     contents =
       metadata
       |> Enum.reduce(
-        [{"level", Atom.to_string(level)}, {"msg", msg}],
+        [
+          %Log.Content{Key: "level", Value: Atom.to_string(level)},
+          %Log.Content{Key: "msg", Value: msg}
+        ],
         fn {k, v}, acc ->
           if formatted = metadata(k, v) do
-            [{Atom.to_string(k), formatted} | acc]
+            [%Log.Content{Key: Atom.to_string(k), Value: formatted} | acc]
           else
             acc
           end
         end
       )
-      |> Enum.map(fn {k, v} -> Log.Content.new(Key: k, Value: v) end)
 
-    Log.new(Time: timestamp, Contents: contents)
+    %Log{Time: timestamp, Contents: contents}
   end
 
   # log package functions
@@ -219,7 +221,7 @@ defmodule ExAliyunSls.LoggerBackend do
 
       {list, _, pack} ->
         source = state.source
-        log_tags = [LogTag.new(Key: "__pack_id__", Value: get_pack_id(source, pack))]
+        log_tags = [%LogTag{Key: "__pack_id__", Value: get_pack_id(source, pack)}]
         Client.push2log_store(Enum.reverse(list), log_tags, "", source, state.profile)
     end
   end
@@ -234,7 +236,7 @@ defmodule ExAliyunSls.LoggerBackend do
   defp send_logs(state, log_items, pack_id) do
     Task.start(fn ->
       source = state.source
-      log_tags = [LogTag.new(Key: "__pack_id__", Value: get_pack_id(source, pack_id))]
+      log_tags = [%LogTag{Key: "__pack_id__", Value: get_pack_id(source, pack_id)}]
       Client.push2log_store(Enum.reverse(log_items), log_tags, "", source, state.profile)
     end)
   end

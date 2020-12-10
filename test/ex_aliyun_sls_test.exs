@@ -34,20 +34,20 @@ defmodule ExAliyunSlsTest do
 
   test "put logs" do
     log_items = [
-      Log.new(
+      %Log{
         Time: now_timestamp(),
         Contents: [
-          Log.Content.new(Key: "file", Value: "ex_aliyun_sls/lib/ex_aliyun_sls/client.ex"),
-          Log.Content.new(Key: "cc", Value: "cc1")
+          %Log.Content{Key: "file", Value: "ex_aliyun_sls/lib/ex_aliyun_sls/client.ex"},
+          %Log.Content{Key: "cc", Value: "cc1"}
         ]
-      ),
-      Log.new(Time: now_timestamp(), Contents: [Log.Content.new(Key: "aa1", Value: "bb1")]),
-      Log.new(Time: now_timestamp(), Contents: [Log.Content.new(Key: "aa", Value: "bb2")])
+      },
+      %Log{Time: now_timestamp(), Contents: [%Log.Content{Key: "aa1", Value: "bb1"}]},
+      %Log{Time: now_timestamp(), Contents: [%Log.Content{Key: "aa", Value: "bb2"}]}
     ]
 
     log_tags = [
-      LogTag.new(Key: "haha", Value: "hehe"),
-      LogTag.new(Key: "hey", Value: "test")
+      %LogTag{Key: "haha", Value: "hehe"},
+      %LogTag{Key: "hey", Value: "test"}
     ]
 
     topic = "topic_test"

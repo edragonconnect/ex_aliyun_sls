@@ -19,90 +19,86 @@ defmodule ExAliyunSls.ProtobufTest do
     timestamp = 424_314_210
 
     logitems = [
-      Log.new(
+      %Log{
         Time: timestamp,
         Contents: [
-          Log.Content.new(Key: item_key, Value: item_value),
-          Log.Content.new(Key: item_key, Value: item_value),
-          Log.Content.new(Key: item_key, Value: item_value),
-          Log.Content.new(Key: item_key, Value: item_value),
-          Log.Content.new(Key: item_key, Value: item_value)
+          %Log.Content{Key: item_key, Value: item_value},
+          %Log.Content{Key: item_key, Value: item_value},
+          %Log.Content{Key: item_key, Value: item_value},
+          %Log.Content{Key: item_key, Value: item_value},
+          %Log.Content{Key: item_key, Value: item_value}
         ]
-      ),
-      Log.new(
+      },
+      %Log{
         Time: timestamp,
         Contents: [
-          Log.Content.new(Key: item_key, Value: item_value),
-          Log.Content.new(Key: item_key, Value: item_value),
-          Log.Content.new(Key: item_key, Value: item_value),
-          Log.Content.new(Key: item_key, Value: item_value),
-          Log.Content.new(Key: item_key, Value: item_value)
+          %Log.Content{Key: item_key, Value: item_value},
+          %Log.Content{Key: item_key, Value: item_value},
+          %Log.Content{Key: item_key, Value: item_value},
+          %Log.Content{Key: item_key, Value: item_value},
+          %Log.Content{Key: item_key, Value: item_value}
         ]
-      ),
-      Log.new(
+      },
+      %Log{
         Time: timestamp,
         Contents: [
-          Log.Content.new(Key: item_key, Value: item_value),
-          Log.Content.new(Key: item_key, Value: item_value),
-          Log.Content.new(Key: item_key, Value: item_value),
-          Log.Content.new(Key: item_key, Value: item_value),
-          Log.Content.new(Key: item_key, Value: item_value)
+          %Log.Content{Key: item_key, Value: item_value},
+          %Log.Content{Key: item_key, Value: item_value},
+          %Log.Content{Key: item_key, Value: item_value},
+          %Log.Content{Key: item_key, Value: item_value},
+          %Log.Content{Key: item_key, Value: item_value}
         ]
-      ),
-      Log.new(
+      },
+      %Log{
         Time: timestamp,
         Contents: [
-          Log.Content.new(Key: item_key, Value: item_value),
-          Log.Content.new(Key: item_key, Value: item_value),
-          Log.Content.new(Key: item_key, Value: item_value),
-          Log.Content.new(Key: item_key, Value: item_value),
-          Log.Content.new(Key: item_key, Value: item_value)
+          %Log.Content{Key: item_key, Value: item_value},
+          %Log.Content{Key: item_key, Value: item_value},
+          %Log.Content{Key: item_key, Value: item_value},
+          %Log.Content{Key: item_key, Value: item_value},
+          %Log.Content{Key: item_key, Value: item_value}
         ]
-      ),
-      Log.new(
+      },
+      %Log{
         Time: timestamp,
         Contents: [
-          Log.Content.new(Key: item_key, Value: item_value),
-          Log.Content.new(Key: item_key, Value: item_value),
-          Log.Content.new(Key: item_key, Value: item_value),
-          Log.Content.new(Key: item_key, Value: item_value),
-          Log.Content.new(Key: item_key, Value: item_value)
+          %Log.Content{Key: item_key, Value: item_value},
+          %Log.Content{Key: item_key, Value: item_value},
+          %Log.Content{Key: item_key, Value: item_value},
+          %Log.Content{Key: item_key, Value: item_value},
+          %Log.Content{Key: item_key, Value: item_value}
         ]
-      ),
-      Log.new(
+      },
+      %Log{
         Time: timestamp,
         Contents: [
-          Log.Content.new(Key: item_key, Value: item_value),
-          Log.Content.new(Key: item_key, Value: item_value),
-          Log.Content.new(Key: item_key, Value: item_value),
-          Log.Content.new(Key: item_key, Value: item_value),
-          Log.Content.new(Key: item_key, Value: item_value)
+          %Log.Content{Key: item_key, Value: item_value},
+          %Log.Content{Key: item_key, Value: item_value},
+          %Log.Content{Key: item_key, Value: item_value},
+          %Log.Content{Key: item_key, Value: item_value},
+          %Log.Content{Key: item_key, Value: item_value}
         ]
-      )
+      }
     ]
 
     logtags = [
-      LogTag.new(Key: tag_key, Value: tag_value),
-      LogTag.new(Key: tag_key, Value: tag_value),
-      LogTag.new(Key: tag_key, Value: tag_value)
+      %LogTag{Key: tag_key, Value: tag_value},
+      %LogTag{Key: tag_key, Value: tag_value},
+      %LogTag{Key: tag_key, Value: tag_value}
     ]
 
-    LogGroup.new(
-      Logs: logitems,
-      Source: "",
-      LogTags: logtags,
-      Topic: ""
-    )
+    %LogGroup{Logs: logitems, Source: "", LogTags: logtags, Topic: ""}
   end
 
   def run_encode(group) do
     group
-    |> LogGroup.encode()
+    |> LogGroup.encode!()
+    |> :erlang.iolist_to_binary()
   end
 
   def run_decode(body) do
     body
-    |> LogGroup.decode()
+    |> LogGroup.decode!()
   end
 
   test "timer encode and decode" do

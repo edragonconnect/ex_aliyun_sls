@@ -1,5 +1,7 @@
 syntax = "proto2";
 
+package ExAliyunSls;
+
 message Log
 {
     required uint32 Time = 1;// UNIX Time Format

@@ -32,7 +32,8 @@ defmodule ExAliyunSls.MixProject do
   end
 
   defp aliases do
-    ["gen.pb": ["cmd protoc -I protos --elixir_out=lib/ex_aliyun_sls/protobuf protos/*.proto"]]
+    # ["gen.pb": ["cmd protoc -I protos --elixir_out=lib/ex_aliyun_sls/protobuf protos/*.proto"]]
+    ["gen.pb": ["protox.generate --keep-unknown-fields=false --output-path=lib/ex_aliyun_sls/protobuf/log_logs.pb.ex protos/log_logs.proto"]]
   end
 
   # Run "mix help deps" to learn about dependencies.
@@ -41,12 +42,12 @@ defmodule ExAliyunSls.MixProject do
       {:tesla, "~> 1.4"},
       {:finch, "~> 0.5"},
       {:plug, "~> 1.7"},
-      {:protobuf, "~> 0.7.1"},
+      {:protox, "~> 1.2"},
       {:jason, "~> 1.2"},
       {:timex, "~> 3.6"},
       {:elixir_uuid, "~> 1.2"},
       {:ex_doc, "~> 0.20", only: :dev, runtime: false},
-      {:credo, "~> 1.0", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.0", only: [:dev, :test], runtime: false}
     ]
   end
 end
