@@ -32,7 +32,6 @@ defmodule ExAliyunSls.MixProject do
   end
 
   defp aliases do
-    # ["gen.pb": ["cmd protoc -I protos --elixir_out=lib/ex_aliyun_sls/protobuf protos/*.proto"]]
     ["gen.pb": ["protox.generate --keep-unknown-fields=false --output-path=lib/ex_aliyun_sls/protobuf/log_logs.pb.ex protos/log_logs.proto"]]
   end
 
