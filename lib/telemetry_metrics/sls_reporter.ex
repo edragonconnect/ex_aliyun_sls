@@ -13,7 +13,7 @@ defmodule Telemetry.Metrics.SLSReporter do
       opts[:metrics] ||
         raise ArgumentError, "the :metrics option is required by #{inspect(__MODULE__)}"
 
-    producer_options = opts[:producer_options] || []
+    producer_options = opts[:producer_options] || [package_timeout: 20_000, package_count: 1_000]
     interval = opts[:interval] || 5_000
 
     GenServer.start_link(
