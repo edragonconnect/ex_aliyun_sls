@@ -3,6 +3,8 @@ defmodule Telemetry.Metrics.SLSReporter do
   use GenServer
   require Logger
   alias ExAliyunSls.{LogMetric, Producer}
+  alias Telemetry.Metrics.Distribution
+  alias TelemetryMetricsPrometheus.{Core, Core.Aggregator, Core.Registry}
 
   def start_link(opts) do
     server_opts = Keyword.take(opts, [:name])
@@ -12,80 +14,95 @@ defmodule Telemetry.Metrics.SLSReporter do
         raise ArgumentError, "the :metrics option is required by #{inspect(__MODULE__)}"
 
     producer_options = opts[:producer_options] || []
+    interval = opts[:interval] || 5_000
 
-    GenServer.start_link(__MODULE__, {metrics, producer_options}, server_opts)
+    GenServer.start_link(
+      __MODULE__,
+      %{metrics: metrics, producer_options: producer_options, interval: interval},
+      server_opts
+    )
   end
 
   @impl true
-  def init({metrics, producer_options}) do
+  def init(%{metrics: metrics, producer_options: producer_options, interval: interval}) do
     Process.flag(:trap_exit, true)
+    {:ok, core} = Core.start_link(metrics: metrics)
     {:ok, producer} = Producer.start_link(producer_options)
-    groups = Enum.group_by(metrics, & &1.event_name)
-
-    for {event, metrics} <- groups do
-      id = {__MODULE__, event, self()}
-      metrics = Enum.map(metrics, &{Enum.join(&1.name, "_"), &1})
-      :telemetry.attach(id, event, &handle_event/4, {metrics, producer})
-    end
-
-    {:ok, Map.keys(groups)}
+    Process.send_after(self(), :init_report, interval)
+    {:ok, %{producer: producer, core: core, interval: interval}}
   end
 
   @impl true
-  def handle_info({:DOWN, _ref, _, pid, reason}, _) do
+  def handle_info(:init_report, %{producer: producer, core: core, interval: interval} = state) do
+    Process.send_after(self(), :report, interval)
+    config = Registry.config(core)
+    metrics = Registry.metrics(core)
+    name_metrics = Enum.map(metrics, &{Enum.join(&1.name, "_"), &1})
+    scrape(producer, config, name_metrics, metrics)
+    {:noreply, Map.merge(state, %{config: config, metrics: metrics, name_metrics: name_metrics})}
+  end
+
+  def handle_info(
+        :report,
+        %{
+          producer: producer,
+          config: config,
+          name_metrics: name_metrics,
+          metrics: metrics,
+          interval: interval
+        } = state
+      ) do
+    Process.send_after(self(), :report, interval)
+    scrape(producer, config, name_metrics, metrics)
+    {:noreply, state}
+  end
+
+  def handle_info({:DOWN, _ref, _, pid, reason}, %{producer: pid}) do
     raise "producer #{inspect(pid)} exited: " <> Exception.format_exit(reason)
   end
 
-  @impl true
-  def terminate(_, events) do
-    for event <- events do
-      :telemetry.detach({__MODULE__, event, self()})
-    end
-
-    :ok
+  def handle_info({:DOWN, _ref, _, pid, reason}, %{core: pid}) do
+    raise "core #{inspect(pid)} exited: " <> Exception.format_exit(reason)
   end
 
-  defp handle_event(_event_name, measurements, metadata, {metrics, producer}) do
-    metrics
-    |> Enum.reduce([], fn {metric_name, metric}, acc ->
-      try do
-        measurement = extract_measurement(metric, measurements, metadata)
-        tags = extract_tags(metric, metadata)
+  defp scrape(producer, config, name_metrics, metrics) do
+    aggregates_table_id = config.aggregates_table_id
+    :ok = Aggregator.aggregate(metrics, aggregates_table_id, config.dist_table_id)
+    time_series = Aggregator.get_time_series(aggregates_table_id)
 
-        cond do
-          is_nil(measurement) -> acc
-          not keep?(metric, metadata) -> acc
-          true -> [LogMetric.make_log_item(metric_name, tags, measurement) | acc]
-        end
-      rescue
-        e ->
-          Logger.warn([
-            "Could not format metric #{inspect(metric)}\n",
-            Exception.format(:error, e, __STACKTRACE__)
-          ])
+    log_items =
+      Enum.flat_map(name_metrics, fn
+        {metric_name, %Distribution{name: name}} ->
+          # histogram
+          time_series[name]
+          |> List.wrap()
+          |> Enum.flat_map(fn {{_, labels}, {buckets, count, sum}} ->
+            labels = LogMetric.format_labels(labels)
 
-          acc
-      end
-    end)
-    |> case do
-      [] -> :skip
-      log_items -> Producer.add_log_items(producer, log_items)
-    end
-  end
+            Enum.map(
+              buckets,
+              fn {upper_bound, count} ->
+                LogMetric.make_log_item(
+                  metric_name <> "_bucket",
+                  labels <> "|le#$##{upper_bound}",
+                  count
+                )
+              end
+            ) ++
+              [
+                LogMetric.make_log_item(metric_name <> "_sum", labels, sum),
+                LogMetric.make_log_item(metric_name <> "_count", labels, count)
+              ]
+          end)
 
-  defp keep?(%{keep: nil}, _metadata), do: true
-  defp keep?(metric, metadata), do: metric.keep.(metadata)
+        {metric_name, %{name: name}} ->
+          time_series[name]
+          |> List.wrap()
+          |> Enum.map(fn {{_, labels}, value} ->
+            LogMetric.make_log_item(metric_name, labels, value)
+          end)
+      end)
 
-  defp extract_measurement(metric, measurements, metadata) do
-    case metric.measurement do
-      fun when is_function(fun, 2) -> fun.(measurements, metadata)
-      fun when is_function(fun, 1) -> fun.(measurements)
-      key -> measurements[key]
-    end
-  end
-
-  defp extract_tags(metric, metadata) do
-    tag_values = metric.tag_values.(metadata)
-    Map.take(tag_values, metric.tags)
+    Producer.add_log_items(producer, log_items)
   end
 end
