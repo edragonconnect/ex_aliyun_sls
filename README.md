@@ -11,7 +11,7 @@ by adding `ex_aliyun_sls` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:ex_aliyun_sls, "~> 0.1"}
+    {:ex_aliyun_sls, "~> 0.3.0"}
   ]
 end
 ```
