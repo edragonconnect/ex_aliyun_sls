@@ -50,7 +50,7 @@ defmodule ExAliyunSls.MixProject do
       {:timex, "~> 3.6"},
       {:elixir_uuid, "~> 1.2"},
       {:telemetry_metrics_prometheus_core, "~> 0.4", optional: true},
-      {:ex_doc, "~> 0.20", only: :dev, runtime: false},
+      {:ex_doc, "0.23.0", only: :dev, runtime: false},
       {:credo, "~> 1.0", only: [:dev, :test], runtime: false}
     ]
   end
