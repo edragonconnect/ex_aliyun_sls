@@ -34,7 +34,7 @@ defmodule ExAliyunSls.Client do
     content =
       "POST\n#{md5}\n#{@content_type}\n#{date}\n#{canonicalized_log_headers}\n#{profile.resource}"
 
-    signature = :crypto.hmac(:sha, profile.access_key, content) |> Base.encode64()
+    signature = ExAliyunSls.Utils.crypto_hmac(:sha, profile.access_key, content) |> Base.encode64()
     authorization = "LOG " <> profile.access_key_id <> ":" <> signature
 
     headers = [

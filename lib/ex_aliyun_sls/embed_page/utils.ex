@@ -37,7 +37,7 @@ defmodule ExAliyunSls.EmbedPage.Utils do
   def sign(access_key_secret, string_to_sign) do
     access_key_secret = access_key_secret <> "&"
 
-    :crypto.hmac(:sha, access_key_secret, string_to_sign)
+    ExAliyunSls.Utils.crypto_hmac(:sha, access_key_secret, string_to_sign)
     |> Base.encode64()
   end
 

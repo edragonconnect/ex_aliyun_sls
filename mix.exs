@@ -4,7 +4,7 @@ defmodule ExAliyunSls.MixProject do
   def project do
     [
       app: :ex_aliyun_sls,
-      version: "0.3.1",
+      version: "0.3.2",
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -44,7 +44,7 @@ defmodule ExAliyunSls.MixProject do
     [
       {:tesla, "~> 1.4"},
       {:finch, "~> 0.5"},
-      {:plug, "~> 1.7"},
+      {:plug, "~> 1.11"},
       {:protox, "~> 1.2"},
       {:jason, "~> 1.2"},
       {:timex, "~> 3.6"},
