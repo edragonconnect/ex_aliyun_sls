@@ -22,7 +22,7 @@ defmodule ExAliyunSls.Client do
 
   def request_api(body, profile) do
     host = profile.host
-    date = Timex.now() |> Timex.format!("%a, %d %b %Y %H:%M:%S GMT", :strftime)
+    date = Timex.now() |> Timex.lformat!("%a, %d %b %Y %H:%M:%S GMT", "en", :strftime)
     body_length = body |> byte_size |> to_string
     md5 = :crypto.hash(:md5, body) |> Base.encode16(case: :upper)
 
