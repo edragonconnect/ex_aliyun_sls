@@ -26,7 +26,7 @@ defmodule ExAliyunSls.EmbeddedPageTest do
                config |> Keyword.get(:access_key_secret)
              )
 
-    assert {:ok, signin_token} =
+    assert {:ok, _signin_token} =
              ExAliyunSls.EmbedPage.get_signin_token(
                credentials["AccessKeyId"],
                credentials["AccessKeySecret"],
