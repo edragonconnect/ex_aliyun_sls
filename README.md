@@ -1,12 +1,19 @@
 # ExAliyunSls
 
+[![Module Version](https://img.shields.io/hexpm/v/ex_aliyun_sls.svg)](https://hex.pm/packages/ex_aliyun_sls)
+[![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/ex_aliyun_sls/)
+[![Total Download](https://img.shields.io/hexpm/dt/ex_aliyun_sls.svg)](https://hex.pm/packages/ex_aliyun_sls)
+[![License](https://img.shields.io/hexpm/l/ex_aliyun_sls.svg)](https://github.com/edragonconnect/ex_aliyun_sls/blob/master/LICENSE.md)
+[![Last Updated](https://img.shields.io/github/last-commit/edragonconnect/ex_aliyun_sls.svg)](https://github.com/edragonconnect/ex_aliyun_sls/commits/master)
+
 ## Description
-Push your logs to aliyun sls(阿里云日志服务), let your logs be more convenient for statistics.
+
+Push your logs to Aliyun SLS (阿里云日志服务), let your logs be more convenient for statistics.
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `ex_aliyun_sls` to your list of dependencies in `mix.exs`:
+The package can be installed by adding `:ex_aliyun_sls` to your list of
+dependencies in `mix.exs`:
 
 ```elixir
 def deps do
@@ -27,9 +34,10 @@ In #1, the content will be pushed as `msg`. #2 is same as #1, but it may be bett
 
 ## Configuration
 
-### Add `YOUR` aliyun sls information into `config/config.exs`
+### Add `Aliyun SLS` information into `config/config.exs`
 
 `package_count` means the max logs to push per time, the count will be set default to 100. `package_timeout` means the max time to push logs once, if you want to clear logs by time, you can set it.
+
 ```elixir
 config :ex_aliyun_sls, :backend,
   endpoint: "YOUR SLS ENDPOINT",
@@ -44,6 +52,7 @@ config :ex_aliyun_sls, :backend,
 ### Config elixir logger
 
 Add ExAliyunSls.LoggerBackend to logger backends, `:sls_log` is just the name of our backend, you can use any atom u like. You can also add other backends to logger.
+
 ```elixir
 config :logger,
   backends: [
@@ -51,6 +60,7 @@ config :logger,
   ]
 ```
 Add metadata you may want to push to sls, only the metadata in the list can be handled.
+
 ```elixir
 config :logger, :sls_log,
   metadata: [:pid, :module, :file, :line, :test_meta]
@@ -58,16 +68,20 @@ config :logger, :sls_log,
 `metadata` can also be set to `:all`, so that all the metadata can be pushed. But in this way `[:pid, :module, :file, :line]` will be pushed by default.
 
 ## Change the log format in Plug
+
 Your logs through phoenix endpoint are set default by Plug.Logger. If you want to push it to aliyunsls, you should use our plug instead.
 
 ### Replace the plug logger handler
+
 ```elixir
 # This is the endpoint.ex in your phoenix project
 
 #plug Plug.Logger
 plug ExAliyunSls.Plug.Logger
 ```
-With this config, your logs are same as
+
+With this config, your logs are same as:
+
 ```elixir
 Logger.info fn ->
   {
@@ -83,11 +97,14 @@ Logger.info fn ->
   }
 end
 ```
+
 Your logs for plug will turn to "GET: /login, Sent 200 in 0.443ms", and it will push the metadatas `duration, method, request_path, status, state, params` to aliyunsls.
 
 
 ### Filter params
-If you have some params that should not be logged into logs, you can filter them by setting `filtered_params` in the config file.
+
+If you have some params that should not be logged into logs, you can filter them by setting `filtered_params` in the config file:
+
 ```elixir
 config :ex_aliyun_sls, :backend,
   endpoint: "YOUR SLS ENDPOINT",
@@ -99,18 +116,24 @@ config :ex_aliyun_sls, :backend,
   package_timeout: 10_000,
   filtered_params: ["name", "card"] # Add your filtered params here
 ```
+
 Then your params of http request will filter the `filtered_params`, they will be replaced by `******`.
 
 ## Use Embedded Page of Aliyun Sls
+
 To check and search logs in aliyun sls dashboard, we can add an embedded page to our own website.
 
 ### Configuration
-You should create a role in Aliyun Console to make an `sts` role.
+
+You should create a role in Aliyun Console to make an `sts` role:
+
 ```elixir
-    access_key_id: "YOUR SLS ACCESS KEY ID",
-    access_key_secret: "YOUR SLS ACCESS KEY SECRET"
+access_key_id: "YOUR SLS ACCESS KEY ID",
+access_key_secret: "YOUR SLS ACCESS KEY SECRET"
 ```
-Attention, the `access_key_id` and `access_key_secret` are not same as your sls account. It is an `Aliyun STS` account. It is used to assume to another Aliyun Role.
+
+Attention, the `access_key_id` and `access_key_secret` are not same as your sls account. It is an `Aliyun STS` account and assume as another Aliyun Role.
+
 ```elixir
 config :ex_aliyun_sls, :embed_page,
   access_key_id: "YOUR SLS ACCESS KEY ID",
@@ -121,17 +144,23 @@ config :ex_aliyun_sls, :embed_page,
 ```
 
 ### How to use it
-You can use ExAliyunSls.EmbedPage.get_url/5 to get the embedded page's url.
+
+You can use `ExAliyunSls.EmbedPage.get_url/5` to get the embedded page's url.
+
 ```elixir
 get_url(access_key_id, access_key_secret, role_arn, login_page, destination_page, duration_seconds \\ 3600, role_session_name \\ "default")
 ```
+
 #### role_arn
+
 `role_arn`: it is Aliyun Resource Name's role, the format is `acs:ram::$accountID:role/$roleName`, such as `acs:ram::1234567890123456:role/samplerole`
 
 #### login_page
+
 `login_page`: it should be the page to redirect to when the embed_page failed.
 
 #### destination_page
+
 `destination_page`: it should be the sls dashboard page you want to add to your page. These types are supported:
 `Full log search page`: `https://sls.console.aliyun.com/next/project/<Project名称>/logsearch/<日志库名称>?hideTopbar=true&hideSidebar=true`
 
@@ -139,8 +168,9 @@ get_url(access_key_id, access_key_secret, role_arn, login_page, destination_page
 
 `Dashboard page`: `https://sls.console.aliyun.com/next/project/<Project名称>/dashboard/<仪表盘名称>?isShare=true&hideTopbar=true&hideSidebar=true`
 
-------
+## Copyright and License
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/ex_aliyun_sls](https://hexdocs.pm/ex_aliyun_sls).
+Copyright (c) 2019 eDragonConnect
+
+This work is free. You can redistribute it and/or modify it under the
+terms of the MIT License. See the [LICENSE.md](./LICENSE.md) file for more details.

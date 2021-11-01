@@ -1,16 +1,17 @@
 defmodule ExAliyunSls.MixProject do
   use Mix.Project
 
+  @source_url "https://github.com/edragonconnect/ex_aliyun_sls"
+  @version "0.3.3"
+
   def project do
     [
       app: :ex_aliyun_sls,
-      version: "0.3.3",
+      version: @version,
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      docs: [extras: ["README.md"]],
-      description: "Aliyun Log Service log producer for Elixir",
-      source_url: "https://github.com/edragonconnect/ex_aliyun_sls",
+      docs: docs(),
       package: package(),
       aliases: aliases()
     ]
@@ -26,8 +27,9 @@ defmodule ExAliyunSls.MixProject do
 
   def package do
     [
+      description: "Aliyun Log Service log producer for Elixir",
       licenses: ["MIT"],
-      links: %{"Github" => "https://github.com/edragonconnect/ex_aliyun_sls"}
+      links: %{"GitHub" => @source_url}
     ]
   end
 
@@ -49,8 +51,20 @@ defmodule ExAliyunSls.MixProject do
       {:jason, "~> 1.2"},
       {:timex, "~> 3.6"},
       {:elixir_uuid, "~> 1.2"},
-      {:ex_doc, "0.23.0", only: :dev, runtime: false},
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
       {:credo, "~> 1.0", only: [:dev, :test], runtime: false}
+    ]
+  end
+
+  defp docs do
+    [
+      extras: [
+        "LICENSE.md": [title: "License"],
+        "README.md": [title: "Overview"]
+      ],
+      main: "readme",
+      source_url: @source_url,
+      formatters: ["html"]
     ]
   end
 end
