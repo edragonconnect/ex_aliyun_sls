@@ -1,6 +1,6 @@
 defmodule ExAliyunSls.EmbedPage.Utils do
   @moduledoc """
-  Utils for generating embeded page.
+  Utils for generating embedded page.
   """
 
   def get_timestamp do

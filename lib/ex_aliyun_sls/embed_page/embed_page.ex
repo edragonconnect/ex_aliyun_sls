@@ -1,6 +1,6 @@
 defmodule ExAliyunSls.EmbedPage do
   @moduledoc """
-  Tool for get an Aliyun LogService Dashboard embeded page url.
+  Tool for get an Aliyun LogService Dashboard embedded page url.
   """
 
   alias ExAliyunSls.EmbedPage.Http
@@ -9,7 +9,7 @@ defmodule ExAliyunSls.EmbedPage do
   @signin_host "https://signin.aliyun.com"
 
   @doc """
-  Generate embeded page url.
+  Generate embedded page url.
   """
   def get_url(
         access_key_id,
@@ -42,7 +42,7 @@ defmodule ExAliyunSls.EmbedPage do
   end
 
   @doc """
-  Get sts token for embeded page.
+  Get sts token for embedded page.
   """
   def get_sts_token(
         role_arn,
