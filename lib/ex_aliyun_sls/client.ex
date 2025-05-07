@@ -27,14 +27,14 @@ defmodule ExAliyunSls.Client do
     md5 = :crypto.hash(:md5, body) |> Base.encode16(case: :upper)
 
     canonicalized_log_headers =
-      "x-log-apiversion:#{@version}\nx-log-bodyrawsize:#{body_length}\nx-log-signaturemethod:#{
-        @sign_method
-      }"
+      "x-log-apiversion:#{@version}\nx-log-bodyrawsize:#{body_length}\nx-log-signaturemethod:#{@sign_method}"
 
     content =
       "POST\n#{md5}\n#{@content_type}\n#{date}\n#{canonicalized_log_headers}\n#{profile.resource}"
 
-    signature = ExAliyunSls.Utils.crypto_hmac(:sha, profile.access_key, content) |> Base.encode64()
+    signature =
+      ExAliyunSls.Utils.crypto_hmac(:sha, profile.access_key, content) |> Base.encode64()
+
     authorization = "LOG " <> profile.access_key_id <> ":" <> signature
 
     headers = [
