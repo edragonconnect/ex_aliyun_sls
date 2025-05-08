@@ -49,7 +49,6 @@ defmodule ExAliyunSls.MixProject do
       {:plug, "~> 1.11"},
       {:protox, "~> 2.0"},
       {:jason, "~> 1.2"},
-      {:timex, "~> 3.6"},
       {:uniq, "~> 0.6"},
       {:ex_doc, ">= 0.0.0", only: :dev, runtime: false},
       {:credo, "~> 1.0", only: [:dev, :test], runtime: false}

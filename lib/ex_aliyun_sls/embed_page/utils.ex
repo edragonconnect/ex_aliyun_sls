@@ -3,9 +3,8 @@ defmodule ExAliyunSls.EmbedPage.Utils do
   Utils for generating embedded page.
   """
 
-  def get_timestamp do
-    now = Timex.now()
-    timestamp = now |> Timex.format!("%Y-%m-%dT%H:%M:%SZ", :strftime)
+  def get_timestamp() do
+    timestamp = Calendar.strftime(DateTime.utc_now(), "%Y-%m-%dT%H:%M:%SZ")
     signature_nonce = Uniq.UUID.uuid1()
     {timestamp, signature_nonce}
   end

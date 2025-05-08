@@ -73,9 +73,11 @@ defmodule ExAliyunSls.LoggerBackend do
   end
 
   defp ts_to_unix({date, {h, m, s, _}}) do
-    {date, {h, m, s}}
-    |> :erlang.localtime_to_universaltime()
-    |> Timex.to_unix()
+    {utc_date, utc_time} = :erlang.localtime_to_universaltime({date, {h, m, s}})
+    utc_date
+    |> Date.from_erl!()
+    |> DateTime.new!(Time.from_erl!(utc_time))
+    |> DateTime.to_unix()
   end
 
   @doc false

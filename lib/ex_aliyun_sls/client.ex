@@ -28,7 +28,7 @@ defmodule ExAliyunSls.Client do
 
   defp request_api(body, body_length, profile) do
     host = profile.host
-    date = Timex.now() |> Timex.lformat!("%a, %d %b %Y %H:%M:%S GMT", "en", :strftime)
+    date = Calendar.strftime(DateTime.now!("Etc/UTC"), "%a, %d %b %Y %H:%M:%S GMT")
     body_length = to_string(body_length)
     md5 = :md5 |> :crypto.hash(body) |> Base.encode16(case: :upper)
 
