@@ -6,11 +6,11 @@ defmodule ExAliyunSls.EmbeddedPageTest do
 
     assert {:ok, _} =
              ExAliyunSls.EmbedPage.get_sts_token(
-               config |> Keyword.get(:role_arn),
+               Keyword.get(config, :role_arn),
                "default",
                3600,
-               config |> Keyword.get(:access_key_id),
-               config |> Keyword.get(:access_key_secret)
+               Keyword.get(config, :access_key_id),
+               Keyword.get(config, :access_key_secret)
              )
   end
 
@@ -19,11 +19,11 @@ defmodule ExAliyunSls.EmbeddedPageTest do
 
     assert {:ok, credentials} =
              ExAliyunSls.EmbedPage.get_sts_token(
-               config |> Keyword.get(:role_arn),
+               Keyword.get(config, :role_arn),
                "default",
                3600,
-               config |> Keyword.get(:access_key_id),
-               config |> Keyword.get(:access_key_secret)
+               Keyword.get(config, :access_key_id),
+               Keyword.get(config, :access_key_secret)
              )
 
     assert {:ok, _signin_token} =
