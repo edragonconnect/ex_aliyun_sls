@@ -20,14 +20,16 @@ defmodule ExAliyunSls.Client do
       LogTags: log_tags,
       Topic: topic
     }
-    {iodata, _size} = LogGroup.encode!(log_group)
-    request_api(iodata, profile)
+    {iodata, size} = LogGroup.encode!(log_group)
+    iodata
+    |> :erlang.iolist_to_binary()
+    |> request_api(size, profile)
   end
 
-  def request_api(body, profile) do
+  defp request_api(body, body_length, profile) do
     host = profile.host
     date = Timex.now() |> Timex.lformat!("%a, %d %b %Y %H:%M:%S GMT", "en", :strftime)
-    body_length = body |> byte_size() |> to_string()
+    body_length = to_string(body_length)
     md5 = :md5 |> :crypto.hash(body) |> Base.encode16(case: :upper)
 
     canonicalized_log_headers =
