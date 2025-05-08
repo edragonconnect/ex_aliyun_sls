@@ -91,21 +91,18 @@ defmodule ExAliyunSls.ProtobufTest do
   end
 
   def run_encode(group) do
-    group
-    |> LogGroup.encode!()
-    |> :erlang.iolist_to_binary()
+    {:ok, encoded, _size} = LogGroup.encode(group)
+    :erlang.iolist_to_binary(encoded)
   end
 
   def run_decode(body) do
-    body
-    |> LogGroup.decode!()
+    {:ok, log_group} = LogGroup.decode(body)
+    log_group
   end
 
   test "timer encode and decode" do
-    {_time1, log_group} = :timer.tc(fn -> build_item() end)
-    {_time2, body} = :timer.tc(fn -> run_encode(log_group) end)
-    {_time3, decoded} = :timer.tc(fn -> run_decode(body) end)
-
+    log_group = build_item()
+    decoded = log_group |> run_encode() |> run_decode()
     assert log_group == decoded
   end
 end

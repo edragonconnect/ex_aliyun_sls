@@ -1,7 +1,7 @@
 defmodule ExAliyunSls.PlugTest do
   use ExUnit.Case, async: false
-  use Plug.Test
 
+  import Plug.Test
   import ExUnit.CaptureLog
 
   require Logger
