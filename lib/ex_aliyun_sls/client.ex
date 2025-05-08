@@ -14,18 +14,21 @@ defmodule ExAliyunSls.Client do
   plug(Tesla.Middleware.Retry, delay: 5_000, max_retries: 5)
 
   def push2log_store(log_items, log_tags, topic, source, profile) do
-    {iodata, _size} = %LogGroup{Logs: log_items,
-                                Source: source,
-                                LogTags: log_tags,
-                                Topic: topic} |> LogGroup.encode!()
-    iodata |> request_api(profile)
+    log_group = %LogGroup{
+      Logs: log_items,
+      Source: source,
+      LogTags: log_tags,
+      Topic: topic
+    }
+    {iodata, _size} = LogGroup.encode!(log_group)
+    request_api(iodata, profile)
   end
 
   def request_api(body, profile) do
     host = profile.host
     date = Timex.now() |> Timex.lformat!("%a, %d %b %Y %H:%M:%S GMT", "en", :strftime)
-    body_length = body |> byte_size |> to_string
-    md5 = :crypto.hash(:md5, body) |> Base.encode16(case: :upper)
+    body_length = body |> byte_size() |> to_string()
+    md5 = :md5 |> :crypto.hash(body) |> Base.encode16(case: :upper)
 
     canonicalized_log_headers =
       "x-log-apiversion:#{@version}\nx-log-bodyrawsize:#{body_length}\nx-log-signaturemethod:#{@sign_method}"

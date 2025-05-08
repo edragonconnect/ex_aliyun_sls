@@ -1,14 +1,14 @@
 defmodule ExAliyunSls.Utils do
   @moduledoc false
 
-  def get_source do
+  def get_source() do
     case Node.self() do
       :nonode@nohost -> get_inner_ip()
-      node_name -> node_name |> to_string
+      node_name -> to_string(node_name)
     end
   end
 
-  defp get_inner_ip do
+  defp get_inner_ip() do
     {:ok, [{{p1, p2, p3, p4}, _, _} | _]} = :inet.getif()
     "#{p1}.#{p2}.#{p3}.#{p4}"
   end

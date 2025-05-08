@@ -20,14 +20,13 @@ defmodule ExAliyunSls.Producer do
     opts = Map.put(opts, :package_count, package_count)
 
     state =
-      %{
+      Map.merge(%{
         item_count: 0,
         log_items: [],
         package_timeout: 10_000,
         source: Utils.get_source(),
         profile: Utils.get_profile()
-      }
-      |> Map.merge(opts)
+      }, opts)
 
     Process.flag(:trap_exit, true)
 
