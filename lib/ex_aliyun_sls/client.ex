@@ -14,10 +14,11 @@ defmodule ExAliyunSls.Client do
   plug(Tesla.Middleware.Retry, delay: 5_000, max_retries: 5)
 
   def push2log_store(log_items, log_tags, topic, source, profile) do
-    %LogGroup{Logs: log_items, Source: source, LogTags: log_tags, Topic: topic}
-    |> LogGroup.encode!()
-    |> :erlang.iolist_to_binary()
-    |> request_api(profile)
+    {iodata, _size} = %LogGroup{Logs: log_items,
+                                Source: source,
+                                LogTags: log_tags,
+                                Topic: topic} |> LogGroup.encode!()
+    iodata |> request_api(profile)
   end
 
   def request_api(body, profile) do

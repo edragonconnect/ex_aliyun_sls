@@ -36,7 +36,7 @@ defmodule ExAliyunSls.MixProject do
   defp aliases do
     [
       "gen.pb": [
-        "protox.generate --keep-unknown-fields=false --output-path=lib/ex_aliyun_sls/protobuf/log_logs.pb.ex protos/log_logs.proto"
+        "protox.generate --output-path=lib/ex_aliyun_sls/protobuf/log_logs.pb.ex protos/log_logs.proto"
       ]
     ]
   end
@@ -47,7 +47,7 @@ defmodule ExAliyunSls.MixProject do
       {:tesla, "~> 1.4"},
       {:finch, "~> 0.5"},
       {:plug, "~> 1.11"},
-      {:protox, "~> 1.2"},
+      {:protox, "~> 2.0"},
       {:jason, "~> 1.2"},
       {:timex, "~> 3.6"},
       {:uniq, "~> 0.6"},
