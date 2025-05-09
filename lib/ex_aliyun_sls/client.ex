@@ -21,9 +21,7 @@ defmodule ExAliyunSls.Client do
       Topic: topic
     }
     {iodata, size} = LogGroup.encode!(log_group)
-    iodata
-    |> :erlang.iolist_to_binary()
-    |> request_api(size, profile)
+    iodata |> request_api(size, profile)
   end
 
   defp request_api(body, body_length, profile) do
