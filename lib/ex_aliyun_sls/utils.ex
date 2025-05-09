@@ -18,7 +18,7 @@ defmodule ExAliyunSls.Utils do
     log_store = Keyword.get(sls_config, log_store_key)
     project = Keyword.get(sls_config, :project)
     endpoint = Keyword.get(sls_config, :endpoint)
-    protocol = Keyword.get(sls_config, :http_protocol, "https")
+    scheme = Keyword.get(sls_config, :scheme, "https")
 
     %{
       log_store: log_store,
@@ -28,7 +28,7 @@ defmodule ExAliyunSls.Utils do
       access_key_id: Keyword.get(sls_config, :access_key_id),
       access_key: Keyword.get(sls_config, :access_key),
       host: project <> "." <> endpoint,
-      protocol: protocol
+      scheme: scheme
     }
   end
 

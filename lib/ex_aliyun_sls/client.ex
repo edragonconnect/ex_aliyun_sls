@@ -53,7 +53,7 @@ defmodule ExAliyunSls.Client do
       {"Authorization", authorization}
     ]
 
-    case post("#{profile.protocol}://#{host}#{profile.resource}", body, headers: headers) do
+    case post("#{profile.scheme}://#{host}#{profile.resource}", body, headers: headers) do
       {:ok, %Tesla.Env{status: 200}} ->
         {:ok, "success"}
 

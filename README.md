@@ -59,7 +59,7 @@ config :ex_aliyun_sls, :backend,
   logstore: "YOUR LOG STORE NAME",
   package_count: 100, # Default to 100
   package_timeout: 10_000, # Optional, Default to nil
-  http_protocol: "https", # Default to "https"
+  scheme: "https", # Default to "https"
   filtered_params: ["password", "token"] # Optional, for filtering sensitive data
 ```
 
@@ -71,8 +71,8 @@ Configuration Options:
 - `project`: Your SLS project name (required)
 - `logstore`: Your SLS logstore name (required)
 - `package_count`: Maximum number of logs to push per batch, default is 100
-- `package_timeout`: Maximum time (in milliseconds) to wait before pushing logs, default is `nil` when using `ExAliyunSls.LoggerBackend`, set this if you want to clear logs regularly.
-- `http_protocol`: The HTTP protocol for requests to Aliyun Cloud Server, default is "https"
+- `package_timeout`: Maximum time (in milliseconds) to wait before pushing logs, default is `nil` when using `ExAliyunSls.LoggerBackend`, set this if you want to clear logs regularly
+- `scheme`: The HTTP scheme for requests to Aliyun Cloud Server, default is "https"
 - `filtered_params`: List of parameter names that should be filtered from logs for privacy/security
 
 Please ensure the `access_key_id` and `access_key` are correct and have the necessary permissions to write to your SLS project.
