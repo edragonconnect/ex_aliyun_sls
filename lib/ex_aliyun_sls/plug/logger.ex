@@ -1,6 +1,6 @@
 defmodule ExAliyunSls.Plug.Logger do
   @moduledoc """
-  A logger `Plug`, you can use it instead of `Plug.Logger`` in your endpoint.
+  A logger `Plug`, you can use it instead of `Plug.Logger` in your endpoint.
   """
 
   require Logger
