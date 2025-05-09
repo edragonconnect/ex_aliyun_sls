@@ -2,13 +2,13 @@ defmodule ExAliyunSls.MixProject do
   use Mix.Project
 
   @source_url "https://github.com/edragonconnect/ex_aliyun_sls"
-  @version "0.3.3"
+  @version "0.4.0"
 
   def project do
     [
       app: :ex_aliyun_sls,
       version: @version,
-      elixir: "~> 1.7",
+      elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       docs: docs(),
@@ -17,7 +17,6 @@ defmodule ExAliyunSls.MixProject do
     ]
   end
 
-  # Run "mix help compile.app" to learn about applications.
   def application do
     [
       mod: {ExAliyunSls.Application, []},
@@ -41,7 +40,6 @@ defmodule ExAliyunSls.MixProject do
     ]
   end
 
-  # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
       {:tesla, "~> 1.4"},

@@ -25,7 +25,7 @@ The package can be installed by adding `:ex_aliyun_sls` to your list of dependen
 ```elixir
 def deps do
   [
-    {:ex_aliyun_sls, "~> 0.3.3"}
+    {:ex_aliyun_sls, "~> 0.4"}
   ]
 end
 ```
