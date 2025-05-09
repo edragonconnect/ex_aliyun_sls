@@ -189,10 +189,9 @@ You can use `ExAliyunSls.EmbedPage.get_url/7` to get the embedded page's URL:
 get_url(access_key_id, access_key_secret, role_arn, login_page, destination_page, duration_seconds \\ 3600, role_session_name \\ "default")
 ```
 
-`role_arn`: It is created in the Aliyun RAM Access Control Console - Role section, the format is `acs:ram::$accountID:role/$roleName`, such as `acs:ram::1234567890123456:role/samplerole`.
-`login_page`: The page to redirect to when the embedded page fails to load.
-`destination_page`: The SLS dashboard page you want to add to your page, these types are supported:
-
+- `role_arn`: It is created in the Aliyun RAM Access Control Console - Role section, the format is `acs:ram::$accountID:role/$roleName`, such as `acs:ram::1234567890123456:role/samplerole`.
+- `login_page`: The page to redirect to when the embedded page fails to load.
+- `destination_page`: The SLS dashboard page you want to add to your page, these types are supported:
   - Full log search page : `https://sls.console.aliyun.com/next/project/<Project名称>/logsearch/<日志库名称>?hideTopbar=true&hideSidebar=true`
   - Log search page : `https://sls.console.aliyun.com/next/project/<Project名称>/logsearch/<日志库名称>?isShare=true&hideTopbar=true&hideSidebar=true`
   - Dashboard page : `https://sls.console.aliyun.com/next/project/<Project名称>/dashboard/<仪表盘名称>?isShare=true&hideTopbar=true&hideSidebar=true`
